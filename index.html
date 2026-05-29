@@ -10,12 +10,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <!-- GA4 — replace G-XXXXXXXXXX with your actual GA4 Measurement ID -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QGZD0CKSJ6"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-QGZD0CKSJ6');
+  gtag('config', 'G-XXXXXXXXXX');
 
   function track(eventName, params) {
     gtag('event', eventName, params || {});
@@ -105,38 +105,113 @@
     z-index: 1;
   }
 
-  /* ── STEP INDICATOR ── */
-  .step-bar {
-    background: var(--deep);
-    padding: 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+  /* ── PROGRESS BAR ── */
+  .progress-bar-wrap {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(26,26,46,0.07);
   }
-  .step-bar-inner {
+  .progress-bar-inner {
     max-width: 960px;
     margin: 0 auto;
-    padding: 0 24px;
-    display: flex;
-    gap: 0;
   }
-  .step-pill {
-    padding: 14px 20px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.35);
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s;
+  .progress-steps {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    margin-bottom: 0;
+  }
+  /* The connecting line behind the steps */
+  .progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 28px;
+    right: 28px;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+  .progress-line-fill {
+    position: absolute;
+    top: 16px;
+    left: 28px;
+    height: 2px;
+    background: var(--accent);
+    z-index: 1;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+  .progress-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
     cursor: default;
+  }
+  .step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    color: var(--mid);
+    transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+    margin-bottom: 8px;
+  }
+  .step-circle .check-icon { display: none; }
+  .step-circle .step-num { display: block; }
+  .progress-step.done .step-circle {
+    background: var(--sage);
+    border-color: var(--sage);
+    color: white;
+  }
+  .progress-step.done .step-circle .check-icon { display: block; }
+  .progress-step.done .step-circle .step-num { display: none; }
+  .progress-step.active .step-circle {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--ink);
+    transform: scale(1.15);
+    box-shadow: 0 0 0 4px rgba(232,168,56,0.2);
+  }
+  .step-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--mid);
+    text-align: center;
+    letter-spacing: 0.3px;
+    line-height: 1.3;
+    padding-bottom: 12px;
+    transition: color 0.3s;
     white-space: nowrap;
   }
-  .step-pill.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
+  .progress-step.active .step-label { color: var(--ink); font-weight: 700; }
+  .progress-step.done .step-label { color: var(--sage); }
+
+  /* Mobile: hide labels on very small screens */
+  @media (max-width: 480px) {
+    .step-label { display: none; }
+    .progress-bar-wrap { padding: 14px 16px 0; }
+    .step-circle { width: 28px; height: 28px; font-size: 11px; }
+    .progress-steps::before { top: 14px; left: 22px; right: 22px; }
+    .progress-line-fill { top: 14px; left: 22px; }
   }
-  .step-pill.done {
-    color: rgba(255,255,255,0.55);
-  }
+
+  /* Hide old pill styles - kept for reference only */
+  .step-bar, .step-bar-inner, .step-pill { display: none; }
 
   /* ── MAIN CONTAINER ── */
   .main {
@@ -673,6 +748,107 @@
     line-height: 1.6;
   }
 
+  /* ── FEEDBACK WIDGET ── */
+  .feedback-box {
+    margin-top: 24px;
+    padding: 24px 28px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: var(--warm-gray);
+    text-align: center;
+  }
+  .feedback-question {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .feedback-btns {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 0;
+  }
+  .fb-btn {
+    padding: 11px 28px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .fb-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .fb-btn.thumbs-up:hover, .fb-btn.thumbs-up.selected {
+    border-color: var(--sage);
+    background: rgba(45,106,79,0.08);
+    color: var(--sage);
+  }
+  .fb-btn.thumbs-down:hover, .fb-btn.thumbs-down.selected {
+    border-color: var(--accent2);
+    background: rgba(200,83,58,0.08);
+    color: var(--accent2);
+  }
+  .fb-followup {
+    display: none;
+    margin-top: 16px;
+    text-align: left;
+    animation: fadeIn 0.3s ease;
+  }
+  .fb-followup.visible { display: block; }
+  .fb-followup label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .fb-followup textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    background: white;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s;
+  }
+  .fb-followup textarea:focus { outline: none; border-color: var(--accent); }
+  .fb-submit {
+    margin-top: 10px;
+    padding: 10px 24px;
+    background: var(--ink);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .fb-submit:hover { background: var(--accent2); }
+  .fb-thankyou {
+    display: none;
+    padding: 16px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--sage);
+    font-weight: 600;
+    animation: fadeIn 0.4s ease;
+  }
+  .fb-thankyou.visible { display: block; }
+
   /* ── FOOTER ── */
   .site-footer {
     text-align: center;
@@ -726,15 +902,61 @@
   </div>
 </header>
 
-<!-- STEP BAR -->
-<div class="step-bar">
-  <div class="step-bar-inner">
-    <div class="step-pill active" id="step-1-pill">01 · Class</div>
-    <div class="step-pill" id="step-2-pill">02 · Marks</div>
-    <div class="step-pill" id="step-3-pill">03 · Interests</div>
-    <div class="step-pill" id="step-4-pill">04 · Extracurricular</div>
-    <div class="step-pill" id="step-5-pill">05 · Context</div>
-    <div class="step-pill" id="step-6-pill">06 · Your Paths</div>
+<!-- PROGRESS BAR -->
+<div class="progress-bar-wrap">
+  <div class="progress-bar-inner">
+    <div class="progress-steps" id="progress-steps">
+      <div class="progress-line-fill" id="progress-line"></div>
+
+      <div class="progress-step active" id="step-1-pill">
+        <div class="step-circle">
+          <span class="step-num">1</span>
+          <span class="check-icon">✓</span>
+        </div>
+        <div class="step-label">Class</div>
+      </div>
+
+      <div class="progress-step" id="step-2-pill">
+        <div class="step-circle">
+          <span class="step-num">2</span>
+          <span class="check-icon">✓</span>
+        </div>
+        <div class="step-label">Marks</div>
+      </div>
+
+      <div class="progress-step" id="step-3-pill">
+        <div class="step-circle">
+          <span class="step-num">3</span>
+          <span class="check-icon">✓</span>
+        </div>
+        <div class="step-label">Interests</div>
+      </div>
+
+      <div class="progress-step" id="step-4-pill">
+        <div class="step-circle">
+          <span class="step-num">4</span>
+          <span class="check-icon">✓</span>
+        </div>
+        <div class="step-label">Activities</div>
+      </div>
+
+      <div class="progress-step" id="step-5-pill">
+        <div class="step-circle">
+          <span class="step-num">5</span>
+          <span class="check-icon">✓</span>
+        </div>
+        <div class="step-label">Context</div>
+      </div>
+
+      <div class="progress-step" id="step-6-pill">
+        <div class="step-circle">
+          <span class="step-num">6</span>
+          <span class="check-icon">✓</span>
+        </div>
+        <div class="step-label">Your Paths</div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -769,14 +991,18 @@
     <div class="section-label">Step 02</div>
     <h2 class="section-title">Your marks</h2>
     <p class="section-desc">Approximate is fine — use the band closest to your score. All data stays in your browser.</p>
-    <div class="marks-grid" id="marks-grid"></div>
 
-    <!-- Stream for 12th students -->
-    <div id="stream-selector-wrap" style="display:none; margin-top:20px;">
-      <div class="divider"></div>
-      <div class="section-label" style="margin-top:0;">Your 11th–12th Stream</div>
+    <!-- Stream for 12th students — shown FIRST -->
+    <div id="stream-selector-wrap" style="display:none; margin-bottom:24px;">
+      <div class="section-label" style="margin-top:0; margin-bottom:8px;">First, select your 11th-12th Stream</div>
       <div class="group-grid" id="stream-grid"></div>
+      <div class="divider" style="margin-top:24px;"></div>
+      <div id="marks-heading" style="display:none;">
+        <div class="section-label" style="margin-bottom:8px;">Now enter your subject marks</div>
+      </div>
     </div>
+
+    <div class="marks-grid" id="marks-grid"></div>
 
     <div class="btn-row">
       <button class="btn-secondary" onclick="goStep(1)">← Back</button>
@@ -946,6 +1172,26 @@
       <div class="disclaimer">
         <strong>Note:</strong> PathFinder India is a free guidance tool, not a substitute for professional career counselling. Recommendations are based on the information you provided and publicly available job market data (Naukri JobSpeak, NASSCOM, 2025–26). No data is stored or shared — everything runs in your browser. Built by <a href="https://jkadvisory.in" target="_blank">JK Advisory</a>.
       </div>
+
+      <!-- FEEDBACK WIDGET -->
+      <div class="feedback-box" id="feedback-box">
+        <div id="fb-main">
+          <div class="feedback-question">Was this guidance helpful for you?</div>
+          <div class="feedback-btns">
+            <button class="fb-btn thumbs-up" onclick="submitFeedback('up')">👍 Yes, helpful</button>
+            <button class="fb-btn thumbs-down" onclick="submitFeedback('down')">👎 Not really</button>
+          </div>
+          <div class="fb-followup" id="fb-followup">
+            <label>What could be better? (optional)</label>
+            <textarea id="fb-text" placeholder="e.g. The paths suggested didn't match my interest... the marks section was confusing..."></textarea>
+            <button class="fb-submit" onclick="submitFeedbackText()">Send feedback →</button>
+          </div>
+        </div>
+        <div class="fb-thankyou" id="fb-thankyou">
+          ✅ Thank you! Your feedback helps improve PathFinder for future students.
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1081,31 +1327,43 @@ function buildMarksGrid() {
   if (state.classLevel === 10) {
     streamWrap.style.display = 'none';
     marks10.forEach(sub => {
+      const savedVal = state.marks[sub.id] || '';
       grid.innerHTML += `
         <div class="mark-field">
           <label>${sub.label}</label>
           <select id="mark-${sub.id}" onchange="state.marks['${sub.id}']=parseInt(this.value)||0">
-            ${markBands.map(b => `<option value="${b.value}">${b.label}</option>`).join('')}
+            ${markBands.map(b => `<option value="${b.value}" ${String(b.value)===String(savedVal)?'selected':''}>${b.label}</option>`).join('')}
           </select>
         </div>`;
     });
   } else {
-    // 12th: first show stream selector, then subjects
+    // 12th: show stream selector FIRST, marks appear only after stream is selected
     streamWrap.style.display = 'block';
     streamGrid.innerHTML = streams12.map(s => `
       <div class="group-chip" id="stream-${s.id}" onclick="selectStream('${s.id}')">
         <div class="group-chip-name">${s.label.split('(')[0].trim()}</div>
         <div class="group-chip-sub">${s.sub}</div>
       </div>`).join('');
-    // Default show generic 12th subjects until stream selected
-    buildSubjectsForStream(null);
+    // Restore previously selected stream if navigating back
+    if (state.stream12) {
+      document.getElementById(`stream-${state.stream12}`).classList.add('selected');
+      buildSubjectsForStream(state.stream12);
+      const heading = document.getElementById('marks-heading');
+      if (heading) heading.style.display = 'block';
+    }
+    // Otherwise leave marks grid empty — wait for stream selection
   }
 }
 
 function selectStream(id) {
   state.stream12 = id;
+  // Clear saved marks when stream changes — avoids stale subject data
+  state.marks = {};
   document.querySelectorAll('[id^="stream-"]').forEach(el => el.classList.remove('selected'));
   document.getElementById(`stream-${id}`).classList.add('selected');
+  // Show the marks heading
+  const heading = document.getElementById('marks-heading');
+  if (heading) heading.style.display = 'block';
   buildSubjectsForStream(id);
   track('select_stream_12', { stream: id });
 }
@@ -1113,13 +1371,15 @@ function selectStream(id) {
 function buildSubjectsForStream(streamId) {
   const grid = document.getElementById('marks-grid');
   grid.innerHTML = '';
-  const subjects = streamId ? marks12subjects[streamId] : marks12subjects['pcm'];
+  if (!streamId) return; // Don't show anything until stream is picked
+  const subjects = marks12subjects[streamId];
   subjects.forEach(sub => {
+    const savedVal = state.marks[sub.id] || '';
     grid.innerHTML += `
       <div class="mark-field">
         <label>${sub.label}</label>
         <select id="mark-${sub.id}" onchange="state.marks['${sub.id}']=parseInt(this.value)||0">
-          ${markBands.map(b => `<option value="${b.value}">${b.label}</option>`).join('')}
+          ${markBands.map(b => `<option value="${b.value}" ${String(b.value)===String(savedVal)?'selected':''}>${b.label}</option>`).join('')}
         </select>
       </div>`;
   });
@@ -1131,18 +1391,25 @@ function buildSubjectsForStream(streamId) {
 function buildPsychoQuestions() {
   const typeLabels = { R:'Realistic', I:'Investigative', A:'Artistic', S:'Social', E:'Enterprising', C:'Conventional' };
   const container = document.getElementById('psycho-questions');
-  container.innerHTML = psychoQuestions.map(q => `
-    <div class="psycho-q" id="pq-${q.id}">
+  container.innerHTML = psychoQuestions.map(q => {
+    const savedVal = riasecAnswers[q.id] || null;
+    return `
+    <div class="psycho-q ${savedVal ? 'answered' : ''}" id="pq-${q.id}">
       <div class="psycho-q-type">${typeLabels[q.type]}</div>
       <div class="psycho-q-text">${q.text}</div>
       <div class="likert">
         <span class="likert-label">Not me</span>
         ${[1,2,3,4,5].map(n => `
-          <button class="likert-btn" onclick="answerPsycho('${q.id}','${q.type}',${n},this)">${n}</button>
+          <button class="likert-btn ${savedVal===n?'active':''}" onclick="answerPsycho('${q.id}','${q.type}',${n},this)">${n}</button>
         `).join('')}
         <span class="likert-label">Absolutely me</span>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+  // Restore count display
+  const count = Object.keys(riasecAnswers).length;
+  const status = document.getElementById('psycho-status');
+  if (status) status.textContent = `${count} / 12 answered`;
 }
 
 function answerPsycho(qid, type, val, btn) {
@@ -1163,6 +1430,11 @@ function computeRiasec() {
   psychoQuestions.forEach(q => {
     scores[q.type] += (riasecAnswers[q.id] || 0);
   });
+  // If all zeros (user skipped), add tiny tiebreaker so sort is stable
+  const total = Object.values(scores).reduce((a,b)=>a+b,0);
+  if (total === 0) {
+    scores.I = 1; scores.E = 1; // default to Investigative+Enterprising as neutral
+  }
   state.riasec = scores;
   // Sort by score descending
   return Object.entries(scores).sort((a,b)=>b[1]-a[1]);
@@ -1182,16 +1454,95 @@ function toggleCheck(el, id) {
 // ═══════════════════════════════════════════
 //  STEP NAVIGATION
 // ═══════════════════════════════════════════
+function restoreExtras() {
+  // Restore checkbox visual state from state.extras
+  state.extras.forEach(id => {
+    const checkbox = document.getElementById(id);
+    if (checkbox) {
+      checkbox.checked = true;
+      checkbox.closest('.check-option').classList.add('checked');
+    }
+  });
+}
+
+function restoreContext() {
+  // Restore context dropdowns from state
+  const fields = ['city-tier','parent-prof','family-exp','finance'];
+  const stateKeys = ['cityTier','parentProf','familyExp','finance'];
+  fields.forEach((fieldId, i) => {
+    const el = document.getElementById(fieldId);
+    if (el && state[stateKeys[i]]) el.value = state[stateKeys[i]];
+  });
+}
+
+function showError(msg) {
+  // Remove any existing error
+  const existing = document.getElementById('inline-error');
+  if (existing) existing.remove();
+  // Find current visible card and append error
+  const card = document.querySelector('.section-card.visible');
+  if (!card) return;
+  const err = document.createElement('div');
+  err.id = 'inline-error';
+  err.style.cssText = 'margin-top:16px; padding:12px 16px; background:rgba(200,83,58,0.08); border-left:3px solid #c8533a; border-radius:8px; font-size:14px; color:#c8533a; font-weight:500;';
+  err.textContent = msg;
+  const btnRow = card.querySelector('.btn-row');
+  if (btnRow) card.insertBefore(err, btnRow);
+  else card.appendChild(err);
+}
+
+function clearError() {
+  const existing = document.getElementById('inline-error');
+  if (existing) existing.remove();
+}
+
 function goStep(n) {
+  clearError();
+
+  // STEP 1 → 2: must select class
   if (n === 2 && !state.classLevel) {
-    alert('Please select your class first.');
+    showError('Please select your class — 10th or 12th.');
     return;
   }
+
+  // STEP 2 → 3: validate marks and stream
+  if (n === 3) {
+    // Collect whatever is filled
+    document.querySelectorAll('[id^="mark-"]').forEach(el => {
+      const key = el.id.replace('mark-','');
+      state.marks[key] = parseInt(el.value) || 0;
+    });
+
+    // For 12th: stream must be selected first
+    if (state.classLevel === 12 && !state.stream12) {
+      showError('Please select your stream first (PCM, PCB, Commerce, etc.).');
+      return;
+    }
+
+    // At least 3 subjects must have marks entered
+    const filled = Object.values(state.marks).filter(v => v > 0).length;
+    if (filled < 3) {
+      showError('Please enter marks for at least 3 subjects before continuing.');
+      return;
+    }
+  }
+
+  // STEP 3 → 4: at least 6 of 12 psychometric questions answered
+  if (n === 4) {
+    const answered = Object.keys(riasecAnswers).length;
+    if (answered < 6) {
+      showError(`Please answer at least 6 interest questions before continuing. You have answered ${answered} of 12.`);
+      return;
+    }
+  }
+
   currentStep = n;
 
   // Build dynamic content
   if (n === 2) buildMarksGrid();
   if (n === 3) buildPsychoQuestions();
+  if (n === 4) restoreExtras();
+  if (n === 5) restoreContext();
 
   // Collect context values when moving forward
   if (n > 5) {
@@ -1215,14 +1566,24 @@ function goStep(n) {
     if (card) card.classList.toggle('visible', i === n);
   }
 
-  // Update step pills
+  // Update progress bar
   for (let i = 1; i <= 6; i++) {
-    const pill = document.getElementById(`step-${i}-pill`);
-    if (pill) {
-      pill.classList.remove('active','done');
-      if (i === n) pill.classList.add('active');
-      if (i < n) pill.classList.add('done');
+    const step = document.getElementById(`step-${i}-pill`);
+    if (step) {
+      step.classList.remove('active','done');
+      if (i === n) step.classList.add('active');
+      if (i < n) step.classList.add('done');
     }
+  }
+  // Animate the connecting line fill
+  // Line spans from step 1 centre to step 6 centre = 0% to 100% of (steps-1)
+  const lineFill = document.getElementById('progress-line');
+  if (lineFill) {
+    const pct = ((n - 1) / 5) * 100; // 5 gaps between 6 steps
+    lineFill.style.width = `calc(${pct}% * ((100% - 56px) / 100%))`;
+    // Simpler: use a fixed pixel calculation based on step
+    const fillMap = { 1:'0%', 2:'20%', 3:'40%', 4:'60%', 5:'80%', 6:'100%' };
+    lineFill.style.width = fillMap[n] || '0%';
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1233,11 +1594,19 @@ function goStep(n) {
 //  RESULT GENERATION
 // ═══════════════════════════════════════════
 function generateResult() {
+  clearError();
+
   // Collect final context
   state.cityTier = document.getElementById('city-tier').value;
   state.parentProf = document.getElementById('parent-prof').value;
   state.familyExp = document.getElementById('family-exp').value;
   state.finance = document.getElementById('finance').value;
+
+  // Validate at least one context field
+  if (!state.cityTier) {
+    showError('Please select your city / town type before generating results.');
+    return;
+  }
 
   // Collect marks
   document.querySelectorAll('[id^="mark-"]').forEach(el => {
@@ -1248,9 +1617,13 @@ function generateResult() {
   const primary = riasecRanked[0][0];
   const secondary = riasecRanked[1][0];
 
-  // Avg marks
+  // Avg marks - require at least some marks entered
   const markVals = Object.values(state.marks).filter(v => v > 0);
-  const avgMark = markVals.length ? Math.round(markVals.reduce((a,b)=>a+b,0)/markVals.length) : 60;
+  if (markVals.length === 0) {
+    showError('Marks data is missing. Please go back and enter your subject marks.');
+    return;
+  }
+  const avgMark = Math.round(markVals.reduce((a,b)=>a+b,0)/markVals.length);
 
   // Generate paths
   const paths = generatePaths(primary, secondary, avgMark, state.classLevel, state.stream12, state.extras, state.familyExp, state.finance);
@@ -1265,9 +1638,15 @@ function generateResult() {
   }
   document.getElementById('result-section').style.display = 'block';
 
-  // Step bar
-  for (let i = 1; i <= 5; i++) document.getElementById(`step-${i}-pill`).classList.replace?.('active','done') || document.getElementById(`step-${i}-pill`).classList.add('done');
-  document.getElementById('step-6-pill').classList.add('active');
+  // Progress bar — all done, step 6 active
+  for (let i = 1; i <= 5; i++) {
+    const s = document.getElementById(`step-${i}-pill`);
+    if (s) { s.classList.remove('active'); s.classList.add('done'); }
+  }
+  const s6 = document.getElementById('step-6-pill');
+  if (s6) { s6.classList.remove('done'); s6.classList.add('active'); }
+  const lineFill = document.getElementById('progress-line');
+  if (lineFill) lineFill.style.width = '100%';
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
   track('result_generated', { class: state.classLevel, primary_riasec: primary, avg_mark: avgMark });
@@ -1607,6 +1986,60 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
 function printResult() {
   track('print_result', { class: state.classLevel });
   window.print();
+}
+
+// ═══════════════════════════════════════════
+//  FEEDBACK
+// ═══════════════════════════════════════════
+let feedbackGiven = false;
+
+function submitFeedback(type) {
+  if (feedbackGiven) return;
+
+  // Highlight selected button
+  document.querySelectorAll('.fb-btn').forEach(b => b.classList.remove('selected'));
+  const selectedBtn = document.querySelector(`.fb-btn.thumbs-${type === 'up' ? 'up' : 'down'}`);
+  if (selectedBtn) selectedBtn.classList.add('selected');
+
+  // Fire GA4 event immediately
+  track('feedback_rating', {
+    rating: type,
+    class_level: state.classLevel,
+    stream: state.stream12 || 'na',
+    primary_riasec: state.riasec ? Object.entries(state.riasec).sort((a,b)=>b[1]-a[1])[0][0] : 'unknown'
+  });
+
+  if (type === 'up') {
+    // Thumbs up — show thank you straight away
+    feedbackGiven = true;
+    document.getElementById('fb-main').style.display = 'none';
+    const ty = document.getElementById('fb-thankyou');
+    ty.classList.add('visible');
+  } else {
+    // Thumbs down — show text box for more detail
+    const followup = document.getElementById('fb-followup');
+    followup.classList.add('visible');
+    followup.querySelector('textarea').focus();
+  }
+}
+
+function submitFeedbackText() {
+  if (feedbackGiven) return;
+  feedbackGiven = true;
+
+  const text = document.getElementById('fb-text').value.trim();
+
+  // Fire GA4 event with optional text (truncated to 100 chars for GA4 param limit)
+  track('feedback_comment', {
+    comment: text ? text.substring(0, 100) : '(no comment)',
+    class_level: state.classLevel,
+    stream: state.stream12 || 'na'
+  });
+
+  // Show thank you
+  document.getElementById('fb-main').style.display = 'none';
+  const ty = document.getElementById('fb-thankyou');
+  ty.classList.add('visible');
 }
 
 function restartTool() {
