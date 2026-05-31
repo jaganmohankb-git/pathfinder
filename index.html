@@ -923,6 +923,19 @@
   }
   .btn-text-share:hover { background: rgba(21,101,192,0.08); }
 
+  .pdf-tip {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: rgba(21,101,192,0.06);
+    border-radius: 8px;
+    border-left: 3px solid var(--sky);
+    font-size: 12px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .pdf-tip strong { color: var(--sky); }
+  @media print { .pdf-tip { display: none !important; } }
+
   .btn-restart {
     padding: 12px 24px;
     background: transparent;
@@ -1124,13 +1137,95 @@
 
   /* ── PRINT STYLES ── */
   @media print {
-    .site-header, .step-bar, .section-card, .site-footer, .action-bar, .btn-row { display: none !important; }
+    /* Hide everything except result */
+    .site-header,
+    .progress-bar-wrap,
+    .step-bar,
+    .section-card,
+    .site-footer,
+    .action-bar,
+    .btn-row,
+    .btn-print,
+    .btn-share,
+    .btn-text-share,
+    .btn-restart,
+    .sticky-action-bar,
+    .feedback-box,
+    #partial-psycho-note,
+    #copy-confirm,
+    .paths-intro { display: none !important; }
+
+    /* Show result */
     #result-section { display: block !important; }
-    body { background: white; }
-    .result-header { background: #1a1a2e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .path-card { break-inside: avoid; }
-    .parent-box { break-inside: avoid; }
-    @page { margin: 18mm; }
+    body { background: white; font-size: 11pt; }
+    .main { padding: 0; max-width: 100%; }
+
+    /* Result header */
+    .result-header {
+      background: #1a1a2e !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      padding: 20px 24px 16px;
+      border-radius: 0;
+    }
+    .result-name { font-size: 20pt; }
+    .result-profile { font-size: 10pt; }
+
+    /* Paths container */
+    .paths-container { padding: 16px 24px 24px; border: none; border-radius: 0; }
+
+    /* Path cards -- keep together, no break inside */
+    .path-card {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      padding: 16px;
+    }
+    .path-title { font-size: 13pt; }
+    .path-why { font-size: 9pt; padding: 10px 12px; }
+    .path-meta { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .meta-value { font-size: 9pt; }
+    .path-risk { font-size: 9pt; }
+    .job-chip { font-size: 9pt; padding: 2px 8px; }
+
+    /* Parent box */
+    .parent-box {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin: 12px 0;
+      padding: 14px 18px;
+    }
+    .parent-text { font-size: 10pt; }
+
+    /* Market strip */
+    .market-strip {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-top: 12px;
+    }
+    .market-box { padding: 12px 14px; }
+    .market-list li { font-size: 9pt; }
+
+    /* Attribution footer for print */
+    .print-attribution {
+      display: block !important;
+      margin-top: 20px;
+      padding-top: 12px;
+      border-top: 1px solid #ccc;
+      font-size: 9pt;
+      color: #666;
+      text-align: center;
+    }
+
+    /* Page settings */
+    @page {
+      margin: 15mm 18mm;
+      size: A4;
+    }
+
+    /* Force page break before market strip if needed */
+    .market-strip { break-before: auto; }
   }
 
   /* ── RESPONSIVE ── */
@@ -1515,18 +1610,30 @@
       </div>
 
       <div class="action-bar">
-        <button class="btn-print" onclick="printResult()">🖨 Print / Save as PDF</button>
+        <button class="btn-print" onclick="printResult()">📄 Save as PDF Report</button>
         <a class="btn-share" id="whatsapp-share" href="#" target="_blank">💬 Share on WhatsApp</a>
-        <button class="btn-text-share" onclick="copyTextReport()" id="btn-text-copy">📋 Copy Text Report</button>
+        <button class="btn-text-share" onclick="copyTextReport()" id="btn-text-copy">📋 Copy Text Summary</button>
         <button class="btn-restart" onclick="restartTool()">Start Over</button>
       </div>
       <div id="copy-confirm" style="display:none; margin-top:8px; font-size:13px; color:var(--sage); font-weight:600;">✅ Copied! Paste it in WhatsApp or any chat.</div>
+      <div class="pdf-tip">
+        💡 <strong>Save as PDF Report</strong> saves a formatted PDF file to your phone — you can then share it on WhatsApp, email, or keep it for reference. On iPhone: tap Save as PDF → tap Share → send via WhatsApp.
+      </div>
 
       <div id="partial-psycho-note" style="display:none; margin-bottom:12px; padding:12px 16px; background:rgba(232,168,56,0.08); border-radius:8px; border-left:3px solid var(--accent); font-size:13px; color:var(--ink);">
         <strong>💡 Tip:</strong> You answered the 6 core interest questions. Answering all 12 next time will improve the accuracy of your career matches.
       </div>
       <div class="disclaimer">
         <strong>Note:</strong> PathFinder India is a free guidance tool, not a substitute for professional career counselling. Recommendations are based on the information you provided and publicly available job market data (Naukri JobSpeak, NASSCOM, 2025–26). No data is stored or shared — everything runs in your browser. Built by <a href="https://jkadvisory.in" target="_blank">JK Advisory</a>.
+      </div>
+
+      <!-- Print-only attribution - hidden on screen, visible in PDF -->
+      <div class="print-attribution" style="display:none;">
+        Generated by PathFinder India &nbsp;|&nbsp;
+        Free career guidance for 10th &amp; 12th students &nbsp;|&nbsp;
+        Built by <strong>Jaganmohan KB</strong> &nbsp;|&nbsp;
+        jkadvisory.in &nbsp;|&nbsp;
+        linkedin.com/in/jaganmohankb
       </div>
 
       <!-- FEEDBACK WIDGET -->
@@ -1555,8 +1662,8 @@
 
 <!-- STICKY MOBILE ACTION BAR -->
 <div class="sticky-action-bar" id="sticky-action-bar">
-  <button class="sticky-btn-print" onclick="printResult()">🖨 Save PDF</button>
-  <a class="sticky-btn-share" id="sticky-whatsapp" href="#" target="_blank">💬 Share</a>
+  <button class="sticky-btn-print" onclick="printResult(); showPdfTip();">📄 Save as PDF</button>
+  <a class="sticky-btn-share" id="sticky-whatsapp" href="#" target="_blank">💬 WhatsApp</a>
 </div>
 
 <!-- FOOTER -->
@@ -2447,7 +2554,7 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
     `Your child's marks (average ~${avgMark}%) and interest profile suggest that <strong>${p1.title}</strong> is the strongest starting point. 
     This path is chosen because their interest profile -- ${riasecNames[primary]} and ${riasecNames[secondary]} -- aligns well with what this field demands. 
     The entry route is through <em>${p1.courses}</em>. 
-    In terms of job market, ${p1.hiring.toLowerCase()} 
+    In terms of job market, ${p1.hiring} 
     We have also provided two alternative paths that are equally valid -- a good counsellor or teacher can help compare all three based on your family\'s priorities and budget.`;
 
   // WhatsApp share -- personalised with top path
@@ -2461,7 +2568,19 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
 // ===========================================
 function printResult() {
   track('print_result', { class: state.classLevel });
-  window.print();
+  // Show tip briefly before print dialog opens
+  const tip = document.querySelector('.pdf-tip');
+  if (tip) tip.style.borderColor = 'var(--accent)';
+  setTimeout(() => { window.print(); }, 100);
+}
+
+function showPdfTip() {
+  // On mobile, scroll to show the PDF tip after clicking sticky bar
+  const tip = document.querySelector('.pdf-tip');
+  if (tip) {
+    tip.style.borderColor = 'var(--accent)';
+    tip.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 }
 
 // ===========================================
