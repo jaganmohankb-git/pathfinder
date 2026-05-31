@@ -391,6 +391,74 @@
     background-color: white;
   }
 
+  /* ── MARK TAP CARDS ── */
+  .mark-tap-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .mark-tap-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .mark-tap-selected {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .mark-tap-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: nowrap;
+  }
+  .mark-tap-btn {
+    flex: 1;
+    padding: 10px 2px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--warm-gray);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--mid);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1.2;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mark-tap-btn:hover {
+    border-color: var(--accent);
+    background: white;
+    color: var(--ink);
+  }
+  .mark-tap-btn.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--ink);
+    font-weight: 700;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(232,168,56,0.3);
+  }
+  .mark-tap-btn.high { }
+  .mark-tap-btn.selected.high { background: var(--sage); border-color: var(--sage); color: white; }
+  .marks-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
   /* ── GROUP SELECTOR (10th stream) ── */
   .group-grid {
     display: grid;
@@ -1414,7 +1482,7 @@
   <div class="section-card" id="step-2">
     <div class="section-label">Step 02</div>
     <h2 class="section-title">Your marks</h2>
-    <p class="section-desc">Approximate is fine — use the band closest to your score. All data stays in your browser.</p>
+    <p class="section-desc">Tap your score band for each subject. Approximate is fine -- pick the closest range. All data stays in your browser.</p>
 
     <!-- Stream for 12th students — shown FIRST -->
     <div id="stream-selector-wrap" style="display:none; margin-bottom:24px;">
@@ -1668,8 +1736,8 @@
 
 <!-- FOOTER -->
 <footer class="site-footer">
-  <p>PathFinder India · Free, private career guidance · <a href="https://jkadvisory.in" target="_blank">JK Advisory</a> · No login · No data collected</p>
-  <p style="margin-top:6px;">Built with ❤️ for Indian students &amp; parents · <a href="mailto:jagan@jkadvisory.in">Feedback</a></p>
+  <p>PathFinder India · Free, private career guidance · No login · No data collected</p>
+  <p style="margin-top:8px;">Built with ❤️ for Indian students &amp; parents by <strong><a href="https://jkadvisory.in" target="_blank">Jaganmohan KB</a></strong> &nbsp;·&nbsp; <a href="https://www.linkedin.com/in/jaganmohankb" target="_blank">LinkedIn</a> &nbsp;·&nbsp; <a href="mailto:jagan@jkadvisory.in">Feedback</a></p>
 </footer>
 
 <script>
@@ -1753,6 +1821,50 @@ const markBands = [
   { value: '35', label: 'Below 45%' },
 ];
 
+// Tap card bands -- short labels for mobile buttons
+const tapBands = [
+  { value: '95', short: '95+',  full: '95% and above', high: true },
+  { value: '85', short: '85+',  full: '85 - 94%',      high: true },
+  { value: '75', short: '75+',  full: '75 - 84%',      high: false },
+  { value: '65', short: '65+',  full: '65 - 74%',      high: false },
+  { value: '55', short: '55+',  full: '55 - 64%',      high: false },
+  { value: '45', short: '45+',  full: '45 - 54%',      high: false },
+  { value: '35', short: '<45',  full: 'Below 45%',      high: false },
+];
+
+function buildMarkTapField(subId, subLabel, savedVal) {
+  const selBand = tapBands.find(b => String(b.value) === String(savedVal));
+  const selText = selBand ? selBand.full : '';
+  return `
+    <div class="mark-tap-field">
+      <div class="mark-tap-label">
+        <span>${subLabel}</span>
+        <span class="mark-tap-selected" id="mark-sel-${subId}">${selText}</span>
+      </div>
+      <div class="mark-tap-row">
+        ${tapBands.map(b => `
+          <button
+            type="button"
+            class="mark-tap-btn ${b.high ? 'high' : ''} ${String(b.value) === String(savedVal) ? 'selected' : ''}"
+            onclick="selectMark('${subId}', '${b.value}', '${b.full}', this)"
+          >${b.short}</button>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function selectMark(subId, value, fullLabel, btn) {
+  // Update state
+  state.marks[subId] = parseInt(value) || 0;
+  // Update visuals -- deselect siblings, select tapped
+  const row = btn.closest('.mark-tap-row');
+  row.querySelectorAll('.mark-tap-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  // Update label
+  const sel = document.getElementById('mark-sel-' + subId);
+  if (sel) sel.textContent = fullLabel;
+}
+
 // ===========================================
 //  PSYCHOMETRIC QUESTIONS (12 -- 2 per RIASEC type)
 // ===========================================
@@ -1804,13 +1916,7 @@ function buildMarksGrid() {
     streamWrap.style.display = 'none';
     marks10.forEach(sub => {
       const savedVal = state.marks[sub.id] || '';
-      grid.innerHTML += `
-        <div class="mark-field">
-          <label>${sub.label}</label>
-          <select id="mark-${sub.id}" onchange="state.marks['${sub.id}']=parseInt(this.value)||0">
-            ${markBands.map(b => `<option value="${b.value}" ${String(b.value)===String(savedVal)?'selected':''}>${b.label}</option>`).join('')}
-          </select>
-        </div>`;
+      grid.innerHTML += buildMarkTapField(sub.id, sub.label, savedVal);
     });
   } else {
     // 12th: show stream selector FIRST, marks appear only after stream is selected
@@ -1851,13 +1957,7 @@ function buildSubjectsForStream(streamId) {
   const subjects = marks12subjects[streamId];
   subjects.forEach(sub => {
     const savedVal = state.marks[sub.id] || '';
-    grid.innerHTML += `
-      <div class="mark-field">
-        <label>${sub.label}</label>
-        <select id="mark-${sub.id}" onchange="state.marks['${sub.id}']=parseInt(this.value)||0">
-          ${markBands.map(b => `<option value="${b.value}" ${String(b.value)===String(savedVal)?'selected':''}>${b.label}</option>`).join('')}
-        </select>
-      </div>`;
+    grid.innerHTML += buildMarkTapField(sub.id, sub.label, savedVal);
   });
 }
 
@@ -2061,11 +2161,7 @@ function goStep(n) {
 
   // STEP 2 -> 3: validate marks and stream
   if (n === 3) {
-    // Collect whatever is filled
-    document.querySelectorAll('[id^="mark-"]').forEach(el => {
-      const key = el.id.replace('mark-','');
-      state.marks[key] = parseInt(el.value) || 0;
-    });
+    // Marks already stored in state.marks via selectMark() tap buttons
 
     // For 12th: stream must be selected first
     if (state.classLevel === 12 && !state.stream12) {
@@ -2076,7 +2172,7 @@ function goStep(n) {
     // At least 3 subjects must have marks entered
     const filled = Object.values(state.marks).filter(v => v > 0).length;
     if (filled < 3) {
-      showError('Please enter marks for at least 3 subjects before continuing.');
+      showError('Please select marks for at least 3 subjects by tapping the score buttons above.');
       return;
     }
   }
@@ -2117,13 +2213,7 @@ function goStep(n) {
     state.finance = document.getElementById('finance').value;
   }
 
-  // Collect marks
-  if (n > 2) {
-    document.querySelectorAll('[id^="mark-"]').forEach(el => {
-      const key = el.id.replace('mark-','');
-      state.marks[key] = parseInt(el.value) || 0;
-    });
-  }
+  // Marks are stored directly in state.marks via selectMark() -- no DOM collection needed
 
   // Show/hide cards
   for (let i = 1; i <= 5; i++) {
@@ -2173,10 +2263,7 @@ function generateResult() {
     return;
   }
 
-  // Collect marks
-  document.querySelectorAll('[id^="mark-"]').forEach(el => {
-    state.marks[el.id.replace('mark-','')] = parseInt(el.value) || 0;
-  });
+  // Marks already in state.marks via selectMark() tap buttons
 
   const riasecRanked = computeRiasec();
   const primary = riasecRanked[0][0];
