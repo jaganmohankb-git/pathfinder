@@ -377,25 +377,45 @@
   .psycho-q-type { font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 2px; text-transform: uppercase; color: var(--mid); margin-bottom: 8px; }
   .likert {
     display: flex;
-    gap: 8px;
     align-items: center;
-    flex-wrap: wrap;
+    gap: 6px;
+    flex-wrap: nowrap;
+    width: 100%;
   }
-  .likert-label { font-size: 11px; color: var(--mid); }
+  .likert-label {
+    font-size: 10px;
+    color: var(--mid);
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.2;
+  }
+  .likert-buttons {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    justify-content: center;
+  }
   .likert-btn {
-    width: 36px; height: 36px;
+    width: 40px; height: 40px;
     border-radius: 50%;
     border: 1.5px solid var(--border);
     background: white;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.18s;
     display: flex; align-items: center; justify-content: center;
     color: var(--mid);
+    flex-shrink: 0;
+    min-width: 40px; min-height: 40px;
+    -webkit-tap-highlight-color: transparent;
   }
   .likert-btn:hover { border-color: var(--accent); color: var(--accent); }
   .likert-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+  @media (max-width: 360px) {
+    .likert-btn { width: 34px; height: 34px; min-width: 34px; min-height: 34px; font-size: 12px; }
+    .likert-label { font-size: 9px; }
+  }
 
   /* ── EXTRAS ── */
   .extras-grid {
@@ -425,9 +445,21 @@
     background: var(--warm-gray);
     transition: all 0.18s;
     font-size: 13px;
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .check-option:hover { border-color: var(--accent); background: white; }
-  .check-option input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .check-option input[type=checkbox] {
+    accent-color: var(--accent);
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    pointer-events: none;
+    cursor: pointer;
+  }
   .check-option.checked { border-color: var(--accent); background: white; }
 
   .field-group { display: flex; flex-direction: column; gap: 6px; }
@@ -1032,27 +1064,27 @@
     <div class="extras-grid">
       <div class="check-group">
         <label>Sports & Physical</label>
-        <div class="check-option" onclick="toggleCheck(this,'sport-school')"><input type="checkbox" id="sport-school"> School / district level sport</div>
-        <div class="check-option" onclick="toggleCheck(this,'sport-state')"><input type="checkbox" id="sport-state"> State / national level sport</div>
-        <div class="check-option" onclick="toggleCheck(this,'sport-ncc')"><input type="checkbox" id="sport-ncc"> NCC / NSS / Scout</div>
+        <label class="check-option" for="sport-school"><input type="checkbox" id="sport-school" onchange="onCheckChange(this,'sport-school')"> School / district level sport</label>
+        <label class="check-option" for="sport-state"><input type="checkbox" id="sport-state" onchange="onCheckChange(this,'sport-state')"> State / national level sport</label>
+        <label class="check-option" for="sport-ncc"><input type="checkbox" id="sport-ncc" onchange="onCheckChange(this,'sport-ncc')"> NCC / NSS / Scout</label>
       </div>
       <div class="check-group">
         <label>Arts & Creativity</label>
-        <div class="check-option" onclick="toggleCheck(this,'art-music')"><input type="checkbox" id="art-music"> Music (instrument / vocal)</div>
-        <div class="check-option" onclick="toggleCheck(this,'art-dance')"><input type="checkbox" id="art-dance"> Dance / Theatre / Drama</div>
-        <div class="check-option" onclick="toggleCheck(this,'art-visual')"><input type="checkbox" id="art-visual"> Visual art / Drawing / Design</div>
+        <label class="check-option" for="art-music"><input type="checkbox" id="art-music" onchange="onCheckChange(this,'art-music')"> Music (instrument / vocal)</label>
+        <label class="check-option" for="art-dance"><input type="checkbox" id="art-dance" onchange="onCheckChange(this,'art-dance')"> Dance / Theatre / Drama</label>
+        <label class="check-option" for="art-visual"><input type="checkbox" id="art-visual" onchange="onCheckChange(this,'art-visual')"> Visual art / Drawing / Design</label>
       </div>
       <div class="check-group">
         <label>Community & Leadership</label>
-        <div class="check-option" onclick="toggleCheck(this,'community-social')"><input type="checkbox" id="community-social"> Community / social service work</div>
-        <div class="check-option" onclick="toggleCheck(this,'community-lead')"><input type="checkbox" id="community-lead"> School leadership role (Captain, Head)</div>
-        <div class="check-option" onclick="toggleCheck(this,'community-event')"><input type="checkbox" id="community-event"> Event / cultural coordinator</div>
+        <label class="check-option" for="community-social"><input type="checkbox" id="community-social" onchange="onCheckChange(this,'community-social')"> Community / social service work</label>
+        <label class="check-option" for="community-lead"><input type="checkbox" id="community-lead" onchange="onCheckChange(this,'community-lead')"> School leadership role (Captain, Head)</label>
+        <label class="check-option" for="community-event"><input type="checkbox" id="community-event" onchange="onCheckChange(this,'community-event')"> Event / cultural coordinator</label>
       </div>
       <div class="check-group">
         <label>Recognition</label>
-        <div class="check-option" onclick="toggleCheck(this,'award-academic')"><input type="checkbox" id="award-academic"> Academic award / scholarship</div>
-        <div class="check-option" onclick="toggleCheck(this,'award-nonac')"><input type="checkbox" id="award-nonac"> Non-academic award / competition win</div>
-        <div class="check-option" onclick="toggleCheck(this,'award-home')"><input type="checkbox" id="award-home"> Significant household responsibilities</div>
+        <label class="check-option" for="award-academic"><input type="checkbox" id="award-academic" onchange="onCheckChange(this,'award-academic')"> Academic award / scholarship</label>
+        <label class="check-option" for="award-nonac"><input type="checkbox" id="award-nonac" onchange="onCheckChange(this,'award-nonac')"> Non-academic award / competition win</label>
+        <label class="check-option" for="award-home"><input type="checkbox" id="award-home" onchange="onCheckChange(this,'award-home')"> Significant household responsibilities</label>
       </div>
     </div>
     <div class="btn-row">
@@ -1399,9 +1431,11 @@ function buildPsychoQuestions() {
       <div class="psycho-q-text">${q.text}</div>
       <div class="likert">
         <span class="likert-label">Not me</span>
-        ${[1,2,3,4,5].map(n => `
-          <button class="likert-btn ${savedVal===n?'active':''}" onclick="answerPsycho('${q.id}','${q.type}',${n},this)">${n}</button>
-        `).join('')}
+        <div class="likert-buttons">
+          ${[1,2,3,4,5].map(n => `
+            <button class="likert-btn ${savedVal===n?'active':''}" onclick="answerPsycho('${q.id}','${q.type}',${n},this)">${n}</button>
+          `).join('')}
+        </div>
         <span class="likert-label">Absolutely me</span>
       </div>
     </div>`;
@@ -1444,11 +1478,18 @@ function computeRiasec() {
 //  EXTRAS
 // ═══════════════════════════════════════════
 function toggleCheck(el, id) {
-  el.classList.toggle('checked');
-  const checkbox = el.querySelector('input[type=checkbox]');
-  checkbox.checked = !checkbox.checked;
-  if (checkbox.checked) { state.extras.push(id); }
-  else { state.extras = state.extras.filter(x => x !== id); }
+  // Handled by onCheckChange to avoid iOS double-fire bug
+}
+
+function onCheckChange(checkbox, id) {
+  const el = checkbox.closest('.check-option');
+  if (checkbox.checked) {
+    el.classList.add('checked');
+    if (!state.extras.includes(id)) state.extras.push(id);
+  } else {
+    el.classList.remove('checked');
+    state.extras = state.extras.filter(x => x !== id);
+  }
 }
 
 // ═══════════════════════════════════════════
