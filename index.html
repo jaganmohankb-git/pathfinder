@@ -363,6 +363,32 @@
   .group-chip-name { font-size: 13px; font-weight: 600; color: var(--ink); }
   .group-chip-sub { font-size: 11px; color: var(--mid); margin-top: 2px; }
 
+  /* ── SCALE LEGEND ── */
+  .scale-legend {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--ink);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .scale-end {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    flex: 1;
+  }
+  .scale-end:last-child { text-align: right; }
+  .scale-arrow {
+    font-size: 18px;
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+
   /* ── PSYCHOMETRIC QUESTIONS ── */
   .psycho-questions { display: flex; flex-direction: column; gap: 20px; }
   .psycho-q {
@@ -377,45 +403,39 @@
   .psycho-q-type { font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 2px; text-transform: uppercase; color: var(--mid); margin-bottom: 8px; }
   .likert {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: nowrap;
+    flex-direction: column;
+    gap: 8px;
     width: 100%;
-  }
-  .likert-label {
-    font-size: 10px;
-    color: var(--mid);
-    white-space: nowrap;
-    flex-shrink: 0;
-    line-height: 1.2;
   }
   .likert-buttons {
     display: flex;
-    gap: 6px;
-    flex: 1;
-    justify-content: center;
+    gap: 8px;
+    justify-content: space-between;
+    width: 100%;
   }
   .likert-btn {
-    width: 40px; height: 40px;
-    border-radius: 50%;
+    flex: 1;
+    height: 44px;
+    border-radius: 10px;
     border: 1.5px solid var(--border);
     background: white;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.18s;
     display: flex; align-items: center; justify-content: center;
     color: var(--mid);
-    flex-shrink: 0;
-    min-width: 40px; min-height: 40px;
     -webkit-tap-highlight-color: transparent;
+    /* Full width tap area — much easier on mobile */
   }
   .likert-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .likert-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
-  @media (max-width: 360px) {
-    .likert-btn { width: 34px; height: 34px; min-width: 34px; min-height: 34px; font-size: 12px; }
-    .likert-label { font-size: 9px; }
+  .likert-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    transform: scale(1.05);
   }
+  /* likert-scale-labels removed — scale shown once at top */
 
   /* ── EXTRAS ── */
   .extras-grid {
@@ -905,14 +925,68 @@
 
   /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
-    .section-card { padding: 24px 20px; }
-    .class-grid { grid-template-columns: 1fr 1fr; }
-    .extras-grid { grid-template-columns: 1fr; }
-    .market-strip { grid-template-columns: 1fr; }
-    .path-meta { grid-template-columns: 1fr 1fr; }
-    .result-header { padding: 28px 20px 20px; }
-    .paths-container { padding: 24px 20px 32px; }
-    .step-pill { font-size: 9px; padding: 12px 10px; }
+    /* Cards */
+    .section-card { padding: 20px 16px; border-radius: 12px; }
+    .main { padding: 16px 12px 60px; }
+
+    /* Class selector */
+    .class-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .class-card { padding: 20px 12px; }
+    .class-card-num { font-size: 36px; }
+
+    /* Marks */
+    .marks-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mark-field select { font-size: 13px; padding: 10px 10px; }
+
+    /* Extras */
+    .extras-grid { grid-template-columns: 1fr; gap: 12px; }
+    .check-option { padding: 10px 12px; font-size: 13px; }
+
+    /* Context */
+    .field-group select { font-size: 13px; }
+
+    /* Result */
+    .result-header { padding: 24px 16px 16px; }
+    .result-name { font-size: 22px; }
+    .paths-container { padding: 20px 16px 28px; }
+    .path-card { padding: 20px 16px; }
+    .path-title { font-size: 17px; }
+    .path-meta { grid-template-columns: 1fr; gap: 10px; }
+    .market-strip { grid-template-columns: 1fr; gap: 12px; }
+
+    /* Action bar */
+    .action-bar { flex-direction: column; gap: 10px; }
+    .btn-print, .btn-share, .btn-restart { width: 100%; justify-content: center; text-align: center; }
+
+    /* Feedback */
+    .feedback-btns { flex-direction: row; gap: 8px; }
+    .fb-btn { flex: 1; justify-content: center; }
+
+    /* Parent box */
+    .parent-box { padding: 18px 16px; }
+
+    /* Header */
+    .header-inner { padding: 32px 16px 28px; }
+    .header-sub { font-size: 15px; }
+
+    /* Progress bar */
+    .progress-bar-wrap { padding: 14px 12px 0; }
+    .step-circle { width: 28px; height: 28px; font-size: 11px; }
+    .step-label { font-size: 9px; padding-bottom: 10px; }
+    .progress-steps::before { top: 14px; left: 18px; right: 18px; }
+    .progress-line-fill { top: 14px; left: 18px; }
+
+    /* Typography */
+    .section-title { font-size: 22px; }
+    .section-desc { font-size: 13px; }
+  }
+
+  /* Very small phones */
+  @media (max-width: 360px) {
+    .marks-grid { grid-template-columns: 1fr; }
+    .class-card-num { font-size: 30px; }
+    .section-title { font-size: 20px; }
+    .step-label { display: none; }
   }
 
   /* Animations */
@@ -1047,7 +1121,12 @@
   <div class="section-card" id="step-3">
     <div class="section-label">Step 03 · Interest Profile</div>
     <h2 class="section-title">What are you naturally drawn to?</h2>
-    <p class="section-desc">Rate each from 1 (not me at all) to 5 (absolutely me). Based on Holland's RIASEC — a globally validated career interest model used for 60+ years.</p>
+    <p class="section-desc">Based on Holland's RIASEC — a globally validated career interest model used for 60+ years.</p>
+    <div class="scale-legend">
+      <span class="scale-end">1 — Not me at all</span>
+      <span class="scale-arrow">→</span>
+      <span class="scale-end">5 — Absolutely me</span>
+    </div>
     <div class="psycho-questions" id="psycho-questions"></div>
     <div class="btn-row">
       <button class="btn-secondary" onclick="goStep(2)">← Back</button>
@@ -1430,13 +1509,11 @@ function buildPsychoQuestions() {
       <div class="psycho-q-type">${typeLabels[q.type]}</div>
       <div class="psycho-q-text">${q.text}</div>
       <div class="likert">
-        <span class="likert-label">Not me</span>
         <div class="likert-buttons">
           ${[1,2,3,4,5].map(n => `
             <button class="likert-btn ${savedVal===n?'active':''}" onclick="answerPsycho('${q.id}','${q.type}',${n},this)">${n}</button>
           `).join('')}
         </div>
-        <span class="likert-label">Absolutely me</span>
       </div>
     </div>`;
   }).join('');
