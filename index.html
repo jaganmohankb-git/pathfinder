@@ -164,38 +164,88 @@
     .header-share-btn { padding: 8px; border-radius: 50%; }
   }
 
-  /* ── LANGUAGE TOGGLE ── */
-  .lang-toggle {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    background: rgba(255,255,255,0.08);
-    border-radius: 100px;
-    padding: 3px;
+  /* ── LANGUAGE SELECTOR ── */
+  .lang-selector {
+    position: relative;
+    flex-shrink: 0;
   }
-  .lang-btn {
-    padding: 5px 10px;
+  .lang-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
     border-radius: 100px;
-    border: none;
-    background: transparent;
-    color: rgba(255,255,255,0.55);
-    font-size: 12px;
-    font-weight: 700;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
     font-family: 'DM Sans', sans-serif;
     cursor: pointer;
     transition: all 0.2s;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    min-width: 32px;
-    text-align: center;
+    white-space: nowrap;
   }
-  .lang-btn.active {
-    background: var(--accent);
+  .lang-trigger:hover {
+    background: rgba(255,255,255,0.18);
+  }
+  .lang-trigger svg { flex-shrink: 0; }
+  .lang-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(26,26,46,0.2);
+    overflow: hidden;
+    min-width: 160px;
+    z-index: 999;
+    animation: fadeIn 0.2s ease;
+  }
+  .lang-dropdown.open { display: block; }
+  .lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
     color: var(--ink);
+    cursor: pointer;
+    transition: background 0.15s;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    border-bottom: 1px solid var(--border);
   }
-  .lang-btn:hover:not(.active) {
-    color: white;
-    background: rgba(255,255,255,0.12);
+  .lang-option:last-child { border-bottom: none; }
+  .lang-option:hover { background: var(--warm-gray); }
+  .lang-option.active {
+    background: rgba(232,168,56,0.1);
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .lang-option.active::after {
+    content: '✓';
+    margin-left: auto;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .lang-flag {
+    font-size: 16px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  @media (max-width: 400px) {
+    #lang-current-label { display: none; }
+    .lang-trigger { padding: 7px 10px; }
   }
 
   .header-bg {
@@ -1462,10 +1512,34 @@
         </svg>
         <span data-i18n="share_tool">Share tool</span>
       </a>
-      <div class="lang-toggle">
-        <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
-        <button class="lang-btn" id="lang-ta" onclick="setLang('ta')">த</button>
-        <button class="lang-btn" id="lang-hi" onclick="setLang('hi')">हि</button>
+      <div class="lang-selector" id="lang-selector">
+        <button class="lang-trigger" onclick="toggleLangMenu()" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <span id="lang-current-label">English</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+            <path d="M1 3l4 4 4-4"/>
+          </svg>
+        </button>
+        <div class="lang-dropdown" id="lang-dropdown">
+          <button class="lang-option active" id="lang-en" onclick="setLang('en')" type="button">
+            <span class="lang-flag">🇮🇳</span>English
+          </button>
+          <button class="lang-option" id="lang-ta" onclick="setLang('ta')" type="button">
+            <span class="lang-flag">த</span>தமிழ்
+          </button>
+          <button class="lang-option" id="lang-hi" onclick="setLang('hi')" type="button">
+            <span class="lang-flag">हि</span>हिंदी
+          </button>
+          <button class="lang-option" id="lang-ka" onclick="setLang('ka')" type="button">
+            <span class="lang-flag">ಕ</span>ಕನ್ನಡ
+          </button>
+          <button class="lang-option" id="lang-te" onclick="setLang('te')" type="button">
+            <span class="lang-flag">తె</span>తెలుగు
+          </button>
+        </div>
       </div>
     </div>
     <h1 class="header-title">Path<span>Finder</span> India</h1>
@@ -1994,6 +2068,102 @@ const translations = {
     feedback_no: 'ज्यादा नहीं',
     feedback_thanks: 'धन्यवाद! आपकी प्रतिक्रिया भविष्य के छात्रों के लिए PathFinder को बेहतर बनाने में मदद करती है।',
   },
+
+  ka: {
+    tagline: 'ಉಚಿತ - ಖಾಸಗಿ - ಲಾಗಿನ್ ಅಗತ್ಯವಿಲ್ಲ',
+    share_tool: 'ಹಂಚಿಕೊಳ್ಳಿ',
+    step1_label: 'ಹಂತ 01',
+    step1_title: 'ನೀವು ಯಾವ ತರಗತಿ ಮುಗಿಸುತ್ತಿದ್ದೀರಿ?',
+    step1_desc: 'ಫಲಿತಾಂಶಗಳನ್ನು ನಿಮ್ಮ ಹಂತಕ್ಕೆ ಅನುಗುಣವಾಗಿ ಕಸ್ಟಮೈಸ್ ಮಾಡಲಾಗುತ್ತದೆ.',
+    class10_label: 'SSC / SSLC / Matric ನಂತರ',
+    class10_sub: 'ಸ್ಟ್ರೀಮ್ ಆಯ್ಕೆ: ವಿಜ್ಞಾನ, ವಾಣಿಜ್ಯ, ಕಲೆ ಅಥವಾ ಡಿಪ್ಳೋಮಾ',
+    class12_label: 'HSC / PUC / Intermediate ನಂತರ',
+    class12_sub: 'ಕೋರ್ಸ್ ಮತ್ತು ಕಾಲೇಜು ಹಂತ ಆಯ್ಕೆ ಮಾಡಿ',
+    tap_hint: 'ಕೆಳಗೆ ನಿಮ್ಮ ತರಗತಿ ಆಯ್ಕೆ ಮಾಡಿ',
+    step2_label: 'ಹಂತ 02',
+    step2_title: 'ನಿಮ್ಮ ಅಂಕಗಳು',
+    step2_desc: 'ಪ್ರತಿ ವಿಷಯಕ್ಕೆ ನಿಮ್ಮ ಅಂಕ ಶ್ರೇಣಿಯನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ. ಅಂದಾಜು ಸರಿ - ಹತ್ತಿರದ ಶ್ರೇಣಿ ಆಯ್ಕೆ ಮಾಡಿ.',
+    step2_stream_label: 'ಮೋದಲು ನಿಮ್ಮ 11-12ನೇ ತರಗತಿ ಸ್ಟ್ರೀಮ್ ಆಯ್ಕೆ ಮಾಡಿ',
+    step2_marks_label: 'ಈಗ ನಿಮ್ಮ ವಿಷಯದ ಅಂಕಗಳನ್ನು ನಮೂದಿಸಿ',
+    step3_label: 'ಹಂತ 03 - ಆಸಕ್ತಿ ಪ್ರೋಫೈಲ್ - ~90 ಸೆಕೆಂಡ್',
+    step3_title: 'ಯಾವ ರೀತಿಯ ಕೆಲಸ ನಿಮಗೆ ಶಕ್ತಿ ನೀಡುತ್ತದೆ?',
+    step3_desc: 'ಈ 6 ಪ್ರಶ್ನೆಗಳು ನಿಮಗೆ ಸ್ವಾಭಾವಿಕವಾಗಿ ಏನು ಹೊಂದಿಕೊಳ್ಳುತ್ತದೆ ಎಂಬುದನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಸಹಾಯ ಮಾಡುತ್ತವೆ.',
+    why_text: 'ಸಂಶೋಧನೆ ತೋರಿಸುತ್ತದೆ: ತಮ್ಮ ಆಸಕ್ತಿಗಳಿಗೆ ಹೊಂದಿಕೊಳ್ಳುವ ವೃತ್ತಿ ಆಯ್ಕೆ ಮಾಡಿದವರು ಹೆಚ್ಚು ಕಾಲ ಉಳಿಯುತ್ತಾರೆ.',
+    scale_low: '1 — ನನ್ನ ಬಗ್ಗೆ ಅಲ್ಲ',
+    scale_high: '5 — ಸಂಪೂರ್ಣ ನನ್ನ ಬಗ್ಗೆ',
+    midpoint_title: 'ಮೂಲ ಪ್ರೋಫೈಲ್ ಸಿದ್ಧ!',
+    midpoint_desc: '6 ಹೆಚ್ಚಿನ ಪ್ರಶ್ನೆಗಳು (ಸುಮಾರು 30 ಸೆಕೆಂಡ್) ನಿಮ್ಮ ಫಲಿತಾಂಶವನ್ನು ಗಣನೀಯವಾಗಿ ಸುಧಾರಿಸುತ್ತವೆ.',
+    midpoint_yes: 'ಹೌದು, ನನ್ನ ಫಲಿತಾಂಶ ಸುಧಾರಿಸಿ',
+    midpoint_skip: 'ಬಿಟುಬಿಡಿ — ನನ್ನ 6 ಉತ್ತರಗಳನ್ನು ಬಳಸಿ',
+    step4_label: 'ಹಂತ 04 - ಶೈಕ್ಷಣಿಕೇತರ - ~1 ನಿಮಿಷ',
+    step4_title: 'ನಿಮ್ಮ ಚಟುವಟಿಕೆಗಳು ಮತ್ತು ಸಾಮರ್ಥ್ಯಗಳು',
+    step4_desc: 'ಇವು ನೀವು ಭಾವಿಸುವುದಕ್ಕಿಂತ ಹೆಚ್ಚು ಮುಖ್ಯ.',
+    step5_label: 'ಹಂತ 05 - ನಿಮ್ಮ ಸಂದರ್ಭ - ~30 ಸೆಕೆಂಡ್',
+    step5_title: 'ಇನ್ನು ಕೆಲವು ವಿಷಯಗಳು',
+    step5_desc: 'ಇದು ನಿಮಗೆ ವಾಸ್ತವಿಕ ಶಿಫಾರಸು್ಗಳನ್ನು ನೀಡಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ.',
+    btn_continue: 'ಮುಂದುವರಿಯಿರಿ',
+    btn_back: 'ಹಿಂದೆ',
+    btn_generate: 'ನನ್ನ ಮಾರ್ಗಗಳನ್ನು ತೋರಿಸಿ',
+    prog_class: 'ತರಗತಿ',
+    prog_marks: 'ಅಂಕಗಳು',
+    prog_interests: 'ಆಸಕ್ತಿಗಳು',
+    prog_activities: 'ಚಟುವಟಿಕೆ',
+    prog_context: 'ಸಂದರ್ಭ',
+    prog_paths: 'ನಿಮ್ಮ ಮಾರ್ಗ',
+    result_tag: 'ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ವರದಿ - PathFinder India',
+    feedback_q: 'ಈ ಮಾರ್ಗದರ್ಶನ ಸಹಾಯಕವಾಯಿತೇ?',
+    feedback_yes: 'ಹೌದು, ಸಹಾಯಕವಾಯಿತು',
+    feedback_no: 'ಅಷ್ಟೋಂದಿಲ್ಲ',
+    feedback_thanks: 'ಧನ್ಯವಾದಗಳು! ನಿ೮ದ ಪ್ರತಿಕ್ರಿಯೆ ಭವಿಷ್ಯದ ವಿದ್ಯಾರ್ಥಿಗಳಿಗಾಗಿ PathFinder ಅನ್ನು ಸುಧಾರಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ.',
+  },
+
+  te: {
+    tagline: 'ఉచితం - ప్రైవేట్ - లాగిన్ అవసరం లేదు',
+    share_tool: 'షేర్ చేయండి',
+    step1_label: 'దశ 01',
+    step1_title: 'మీరు ఏ తరగతి పూర్తి చేస్తున్నారు?',
+    step1_desc: 'ఫలితాలు మీ దశకు అనుగుణంగా అనుకూలీకరించబడతాయి.',
+    class10_label: 'SSC / SSLC / Matric తర్వాత',
+    class10_sub: 'స్ట్రీమ్ ఎంచుకోండి: సైన్స్, కామర్స్, ఆర్ట్స్ లేదా డిప్లొమా',
+    class12_label: 'HSC / PUC / Intermediate తర్వాత',
+    class12_sub: 'కోర్సు మరియు కళాశాల స్థాయి ఎంచుకోండి',
+    tap_hint: 'దిగువన మీ తరగతి ఎంచుకోండి',
+    step2_label: 'దశ 02',
+    step2_title: 'మీ మార్కులు',
+    step2_desc: 'ప్రతి సబ్జెక్ట్‌కు మీ మార్కు శ్రేణిని నొక్కండి. సుమారు సరిపోతుంది.',
+    step2_stream_label: 'ముందుగా మీ 11-12వ తరగతి స్ట్రీమ్ ఎంచుకోండి',
+    step2_marks_label: 'ఇప్పుడు మీ సబ్జెక్ట్ మార్కులు నమోదు చేయండి',
+    step3_label: 'దశ 03 - ఆసక్తి ప్రొఫైల్ - ~90 సెకన్లు',
+    step3_title: 'ఏ రకమైన పని మీకు శక్తి నిస్తుంది?',
+    step3_desc: 'ఈ 6 ప్రశ్నలు మీకు సహజంగా ఏది సరిపోతుందో అర్థం చేసుకోవడానికి సహాయం చేస్తాయి.',
+    why_text: 'పరిశోధన చూపిస్తుంది: తమ ఆసక్తులకు అనుగుణంగా కెరీర్ ఎంచుకున్నవారు ఎక్కువ కాలం నిలబడతారు.',
+    scale_low: '1 — నా గురించి కాదు',
+    scale_high: '5 — పూర్తిగా నా గురించి',
+    midpoint_title: 'మూల ప్రొఫైల్ సిద్ధం!',
+    midpoint_desc: '6 మరిన్ని ప్రశ్నలు (దాదాపు 30 సెకన్లు) మీ ఫలితాన్ని గణనీయంగా మెరుగుపరుస్తాయి.',
+    midpoint_yes: 'అవును, నా ఫలితాన్ని మెరుగుపరచండి',
+    midpoint_skip: 'వదిలేయండి — నా 6 సమాధానాలు వాడండి',
+    step4_label: 'దశ 04 - పాఠ్యేతర కార్యకలాపాలు - ~1 నిమిషం',
+    step4_title: 'మీ కార్యకలాపాలు మరియు బలాలు',
+    step4_desc: 'ఇవి మీరు అనుకున్నదాని కంటె ముఖ్యమైనవి.',
+    step5_label: 'దశ 05 - మీ సందర్భం - ~30 సెకన్లు',
+    step5_title: 'ఇంకా కొన్ని విషయాలు',
+    step5_desc: 'ఇది మీకు వాస్తవిక సిఫారసులు ఇవ్వడానికి సహాయం చేస్తుంది.',
+    btn_continue: 'కొనసాగించండి',
+    btn_back: 'వెనక్కి',
+    btn_generate: 'నా మార్గాలు చూపించు',
+    prog_class: 'తరగతి',
+    prog_marks: 'మార్కులు',
+    prog_interests: 'ఆసక్తులు',
+    prog_activities: 'కార్యకలాపం',
+    prog_context: 'సందర్భం',
+    prog_paths: 'మీ మార్గాలు',
+    result_tag: 'మీ వ్యక్తిగత నివేదిక - PathFinder India',
+    feedback_q: 'ఈ మార్గదర్శకత్వం మీకు సహాయకరంగా ఉందా?',
+    feedback_yes: 'అవును, సహాయకరంగా ఉంది',
+    feedback_no: 'అంతగా లేదు',
+    feedback_thanks: 'ధన్యవాదాలు! మీ అభిప్రాయం భవిష్యత్తు విద్యార్థులకు PathFinder ని మెరుగుపరచడానికి సహాయం చేస్తుంది.',
+  },
 };
 
 function getTypeLabel(type) {
@@ -2001,6 +2171,8 @@ function getTypeLabel(type) {
     en: { R:'Realistic', I:'Investigative', A:'Artistic', S:'Social', E:'Enterprising', C:'Conventional' },
     ta: { R:'நடைமுறை', I:'விசாரணை', A:'கலை', S:'சமூக', E:'தொழில்முனைவு', C:'ஒழுங்கு' },
     hi: { R:'व्यावहारिक', I:'खोजी', A:'कलात्मक', S:'सामाजिक', E:'उद्यमी', C:'व्यवस्थित' },
+    ka: { R:'ವಾಸ್ತವಿಕ', I:'ಸಂಶೋಧಕ', A:'ಕಲಾತ್ಮಕ', S:'ಸಾಮಾಜಿಕ', E:'ಉದ್ಯಮಿ', C:'ವ್ಯವಸ್ಥಿತ' },
+    te: { R:'వాస్తవిక', I:'పరిశోధక', A:'కళాత్మక', S:'సామాజిక', E:'వ్యాపారవేత్త', C:'వ్యవస్థిత' },
   };
   return (labels[currentLang] || labels.en)[type] || type;
 }
@@ -2008,10 +2180,13 @@ function getTypeLabel(type) {
 function setLang(lang) {
   currentLang = lang;
   // Update toggle buttons
-  ['en','ta','hi'].forEach(l => {
+  ['en','ta','hi','ka','te'].forEach(l => {
     const btn = document.getElementById('lang-' + l);
     if (btn) btn.classList.toggle('active', l === lang);
   });
+  // Close dropdown if open
+  const dd = document.getElementById('lang-dropdown');
+  if (dd) dd.classList.remove('open');
   // Swap all data-i18n elements
   const t = translations[lang];
   if (!t) return;
@@ -2022,13 +2197,38 @@ function setLang(lang) {
   // Update dynamic elements
   applyLangToDynamic(t);
   // Update page title
-  document.title = lang === 'ta'
-    ? 'PathFinder India — 10வது & 12வது மாணவர்களுக்கான இலவச வழிகாட்டுதல்'
-    : lang === 'hi'
-    ? 'PathFinder India — 10वीं और 12वीं छात्रों के लिए मुफ्त करियर गाइडेंस'
-    : 'PathFinder India — Free Career Guidance for 10th & 12th Students';
+  const titles = {
+    en: 'PathFinder India — Free Career Guidance for 10th & 12th Students',
+    ta: 'PathFinder India — 10வது & 12வது மாணவர்களுக்கான இலவச வழிகாட்டுதல்',
+    hi: 'PathFinder India — 10वीं और 12वीं छात्रों के लिए मुफ्त करियर गाइडेंस',
+    ka: 'PathFinder India — 10 ಮತ್ತು 12ನೇ ತರಗತಿ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಉಚಿತ ವೃತ್ತಿ ಮಾರ್ಗದರ್ಶನ',
+    te: 'PathFinder India — 10, 12 తరగతుల విద్యార్థులకు ఉచిత కెరీర్ గైడెన్స్',
+  };
+  document.title = titles[lang] || titles.en;
+  // Update trigger label
+  const langNames = { en:'English', ta:'தமிழ்', hi:'हिंदी', ka:'ಕನ್ನಡ', te:'తెలుగు' };
+  const label = document.getElementById('lang-current-label');
+  if (label) label.textContent = langNames[lang] || 'English';
+  // Update active state in dropdown
+  document.querySelectorAll('.lang-option').forEach(btn => {
+    btn.classList.toggle('active', btn.id === 'lang-' + lang);
+  });
   track('language_change', { language: lang });
 }
+
+function toggleLangMenu() {
+  const dd = document.getElementById('lang-dropdown');
+  if (dd) dd.classList.toggle('open');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+  const selector = document.getElementById('lang-selector');
+  if (selector && !selector.contains(e.target)) {
+    const dd = document.getElementById('lang-dropdown');
+    if (dd) dd.classList.remove('open');
+  }
+});
 
 function applyLangToDynamic(t) {
   // Scale legend
