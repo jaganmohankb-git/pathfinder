@@ -1582,6 +1582,25 @@
     <p class="section-desc">This helps us give you realistic recommendations — not just aspirational ones. Your answers here are never stored or shared.</p>
     <div class="extras-grid">
       <div class="field-group">
+        <label>Your State</label>
+        <select id="user-state">
+          <option value="">Select state</option>
+          <option value="TN">Tamil Nadu</option>
+          <option value="KA">Karnataka</option>
+          <option value="KL">Kerala</option>
+          <option value="AP">Andhra Pradesh</option>
+          <option value="TS">Telangana</option>
+          <option value="MH">Maharashtra</option>
+          <option value="DL">Delhi / NCR</option>
+          <option value="WB">West Bengal</option>
+          <option value="RJ">Rajasthan</option>
+          <option value="UP">Uttar Pradesh</option>
+          <option value="GJ">Gujarat</option>
+          <option value="PB">Punjab / Haryana</option>
+          <option value="OT">Other state</option>
+        </select>
+      </div>
+      <div class="field-group">
         <label>City / Town type</label>
         <select id="city-tier">
           <option value="">Select</option>
@@ -2112,8 +2131,8 @@ function restoreExtras() {
 
 function restoreContext() {
   // Restore context dropdowns from state
-  const fields = ['city-tier','parent-prof','family-exp','finance'];
-  const stateKeys = ['cityTier','parentProf','familyExp','finance'];
+  const fields = ['user-state','city-tier','parent-prof','family-exp','finance'];
+  const stateKeys = ['userState','cityTier','parentProf','familyExp','finance'];
   fields.forEach((fieldId, i) => {
     const el = document.getElementById(fieldId);
     if (el && state[stateKeys[i]]) el.value = state[stateKeys[i]];
@@ -2207,6 +2226,7 @@ function goStep(n) {
 
   // Collect context values when moving forward
   if (n > 5) {
+    state.userState = document.getElementById('user-state').value;
     state.cityTier = document.getElementById('city-tier').value;
     state.parentProf = document.getElementById('parent-prof').value;
     state.familyExp = document.getElementById('family-exp').value;
@@ -2252,6 +2272,7 @@ function generateResult() {
   clearError();
 
   // Collect final context
+  state.userState = document.getElementById('user-state').value;
   state.cityTier = document.getElementById('city-tier').value;
   state.parentProf = document.getElementById('parent-prof').value;
   state.familyExp = document.getElementById('family-exp').value;
@@ -2281,7 +2302,7 @@ function generateResult() {
   const avgMark = Math.round(markVals.reduce((a,b)=>a+b,0)/markVals.length);
 
   // Generate paths
-  const paths = generatePaths(primary, secondary, avgMark, state.classLevel, state.stream12, state.extras, state.familyExp, state.finance);
+  const paths = generatePaths(primary, secondary, avgMark, state.classLevel, state.stream12, state.extras, state.familyExp, state.finance, state.userState || '');
   generatedPaths = paths; // store for text share
 
   // Render
@@ -2313,14 +2334,107 @@ function generateResult() {
   const stickyWa = document.getElementById('sticky-whatsapp');
   if (stickyWa) {
     const mainWa = document.getElementById('whatsapp-share');
-    if (mainWa) stickyWa.href = mainWa.href;
+    if (mainWa) stickyWa.href = mainWa.href; // synced from main share button
   }
+}
+
+// ===========================================
+//  STATE-AWARE EXAM + COLLEGE HELPERS
+// ===========================================
+
+function getEnggExams(s) {
+  const m = {
+    TN:'TNEA for state colleges; JEE Main for NITs/IIITs; JEE Advanced for IITs',
+    KA:'KCET for state colleges; JEE Main for NITs/IIITs; JEE Advanced for IITs',
+    KL:'KEAM for state colleges; JEE Main for NITs; JEE Advanced for IITs',
+    AP:'AP EAMCET for state colleges; JEE Main for NITs; JEE Advanced for IITs',
+    TS:'TS EAMCET for state colleges; JEE Main for NITs; JEE Advanced for IITs',
+    MH:'MHT CET for state colleges; JEE Main for NITs/IIITs; JEE Advanced for IITs',
+    DL:'JEE Main for NITs/IIITs/DTU/NSIT; JEE Advanced for IITs',
+    WB:'WBJEE for state colleges; JEE Main for NITs; JEE Advanced for IITs',
+    RJ:'JEE Main for NITs; JEE Advanced for IITs; RPET for state colleges',
+    UP:'UPSEE/AKTU for state colleges; JEE Main for NITs; JEE Advanced for IITs',
+    GJ:'GUJCET for state colleges; JEE Main for NITs; JEE Advanced for IITs',
+    PB:'JEE Main for NITs/IIITs; JEE Advanced for IITs; PTU for Punjab state',
+  };
+  return m[s] || 'JEE Advanced for IITs; JEE Main for NITs/IIITs; State entrance exam for state colleges';
+}
+
+function getMedExams(s) {
+  const base = 'NEET-UG for MBBS/BDS/BAMS/BSMS';
+  const quota = {
+    TN: base + ' -- Tamil Nadu 85% state quota in govt medical colleges',
+    KA: base + ' -- Karnataka 85% state quota in govt colleges',
+    KL: base + ' -- Kerala has strong govt medical college network',
+    AP: base + ' -- AP 85% state quota in govt colleges',
+    TS: base + ' -- Telangana 85% state quota in govt colleges',
+    MH: base + ' -- Maharashtra state quota applies',
+  };
+  return quota[s] || base + ' -- 85% state quota in govt medical colleges';
+}
+
+function getColleges(pathId, s) {
+  const c = {
+    btech_ai: {
+      TN:['IIT Madras','NIT Trichy','Anna University CEG','PSG Tech Coimbatore','Amrita Coimbatore'],
+      KA:['IISc Bengaluru','NIT Surathkal','RV College','PES University','BMS College'],
+      KL:['IIT Palakkad','NIT Calicut','College of Engg Trivandrum','Model Engg College'],
+      AP:['IIT Tirupati','NIT Warangal','JNTU Hyderabad','VIT Vellore'],
+      TS:['IIT Hyderabad','NIT Warangal','BITS Pilani Hyderabad','IIIT Hyderabad'],
+      MH:['IIT Bombay','VJTI Mumbai','COEP Pune','NIT Nagpur'],
+      DL:['IIT Delhi','DTU Delhi','NSIT Delhi','IIIT Delhi'],
+      DEFAULT:['IIT (nearest)','NIT (state)','IIIT (state)','Top state govt engg college','NAAC A++ private college'],
+    },
+    btech_core: {
+      TN:['NIT Trichy','Anna University','Coimbatore Institute of Technology','GCE Salem'],
+      KA:['NIT Surathkal','BMS College','BIT Bengaluru','Govt Engineering College'],
+      DEFAULT:['NIT (state)','State govt engineering college','NAAC A+ aided college'],
+    },
+    medicine: {
+      TN:['Madras Medical College','Stanley Medical College','Coimbatore Medical College','PSG Medical College'],
+      KA:['MS Ramaiah Medical College','St Johns Medical College','Kasturba Medical College Manipal'],
+      KL:['Govt Medical College Thiruvananthapuram','Calicut Medical College','Amala Institute'],
+      DEFAULT:['Government Medical College (state capital)','State university affiliated medical colleges'],
+    },
+    allied_health: {
+      TN:['KMCH Coimbatore (BPT)','SRM College of Physiotherapy','Vels University (B.Pharm)'],
+      DEFAULT:['Govt physiotherapy college','State university B.Pharm college','Nursing college under state health university'],
+    },
+    ca_finance: {
+      DEFAULT:['ICAI (CA -- enroll directly)','Loyola College Chennai','Christ University Bengaluru','Symbiosis Pune','NMIMS Mumbai'],
+    },
+    bba_mba: {
+      TN:['Loyola College Chennai','MCC Chennai','PSG College Coimbatore','IIM Trichy (MBA later)'],
+      DEFAULT:['Christ University Bengaluru','Symbiosis Pune','NMIMS Mumbai','IIM via CAT after graduation'],
+    },
+    law: {
+      TN:['Tamil Nadu National Law University','School of Excellence in Law Chennai','Madras Law College'],
+      KA:['NLSIU Bengaluru','Symbiosis Law Pune','Karnataka State Law University'],
+      DEFAULT:['National Law University (state NLU)','State law college','Symbiosis Law Pune'],
+    },
+    journalism_design: {
+      TN:['Asian College of Journalism Chennai','Madras Christian College','NID Ahmedabad (design)'],
+      DEFAULT:['Xavier Institute of Communications Mumbai','NID Ahmedabad','Srishti Bengaluru (design)'],
+    },
+    civil_services: {
+      TN:['Loyola College Chennai','Presidency College Chennai','Govt Arts College'],
+      DEFAULT:['Delhi University (BA History/Pol Sci)','State govt arts college','Any BA + dedicated UPSC coaching'],
+    },
+    diploma: {
+      TN:['Govt Polytechnic (DOTE Tamil Nadu -- very low fees)','State polytechnic colleges'],
+      KA:['Govt Polytechnic Bengaluru','Karnataka polytechnic colleges'],
+      DEFAULT:['State Govt Polytechnic (nearest)','AICTE approved Diploma college'],
+    },
+  };
+  const p = c[pathId];
+  if (!p) return [];
+  return p[s] || p.DEFAULT || [];
 }
 
 // ===========================================
 //  PATH LOGIC ENGINE
 // ===========================================
-function generatePaths(primary, secondary, avgMark, classLevel, stream12, extras, familyExp, finance) {
+function generatePaths(primary, secondary, avgMark, classLevel, stream12, extras, familyExp, finance, userState) {
   const hasArt = extras.some(e => ['art-music','art-dance','art-visual'].includes(e));
   const hasSport = extras.some(e => ['sport-school','sport-state'].includes(e));
   const hasLeadership = extras.some(e => ['community-lead','community-event','community-social'].includes(e));
@@ -2328,13 +2442,13 @@ function generatePaths(primary, secondary, avgMark, classLevel, stream12, extras
   const isLowBudget = finance === 'low';
 
   if (classLevel === 10) {
-    return generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget);
+    return generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState);
   } else {
-    return generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget);
+    return generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState);
   }
 }
 
-function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget) {
+function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState) {
   const paths = [];
 
   // PATH MATRIX -- 10th
@@ -2401,13 +2515,14 @@ function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeade
     },
   ];
 
-  // Score each path
+  // Score each path + add state-specific colleges
   allPaths.forEach(p => {
     let score = 0;
     if (p.riasecFit.includes(primary)) score += 40;
     if (p.riasecFit.includes(secondary)) score += 20;
     if (avgMark >= p.minMark) score += 30; else score -= 20;
     if (familyExp && p.id.includes(familyExp)) score += 10;
+    p.colleges = getColleges(p.id, userState);
     paths.push({ ...p, score });
   });
 
@@ -2415,7 +2530,7 @@ function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeade
   return paths.sort((a,b) => b.score - a.score).slice(0, 3);
 }
 
-function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget) {
+function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState) {
   const allPaths = [];
 
   const stream = stream12 || 'pcm';
@@ -2574,12 +2689,20 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
     );
   }
 
-  // Score paths
+  // Score paths + add state-specific data
   const scored = allPaths.map(p => {
     let score = 0;
     if (p.riasecFit.includes(primary)) score += 40;
     if (p.riasecFit.includes(secondary)) score += 20;
     if (avgMark >= p.minMark) score += 30; else score -= 20;
+    // Inject state-specific exam names
+    if (p.id === 'btech_ai' || p.id === 'btech_core') {
+      p.courses = getEnggExams(userState);
+    }
+    if (p.id === 'medicine') {
+      p.courses = getMedExams(userState);
+    }
+    p.colleges = getColleges(p.id, userState);
     return { ...p, score };
   });
 
@@ -2625,8 +2748,8 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
       <div class="path-subtitle">${p.subtitle}</div>
       <div class="path-why">💡 ${p.why}</div>
       <div class="path-meta">
-        <div class="meta-item"><div class="meta-label">Entry Courses</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.courses}</div></div>
-        ${p.collegeTier ? `<div class="meta-item"><div class="meta-label">College Tier</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.collegeTier}</div></div>` : ''}
+        <div class="meta-item"><div class="meta-label">Entry Courses / Exams</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.courses}</div></div>
+        ${p.colleges && p.colleges.length ? `<div class="meta-item"><div class="meta-label">Colleges to Target</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.colleges.join(', ')}</div></div>` : (p.collegeTier ? `<div class="meta-item"><div class="meta-label">College Tier</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.collegeTier}</div></div>` : '')}
         <div class="meta-item"><div class="meta-label">Typical Salary</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.salary}</div></div>
         <div class="meta-item"><div class="meta-label">Job Market Signal</div><div class="meta-value" style="font-size:12px;font-weight:400;color:var(--sage)">${p.hiring}</div></div>
       </div>
@@ -2647,7 +2770,7 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
   // WhatsApp share -- personalised with top path
   const topPathTitle = paths[0] ? paths[0].title : 'my career path';
   const shareMsg = `I tried PathFinder India and my top career path is: ${topPathTitle}. Free tool for students finishing 10th & 12th -- based on marks, interests & real job market data. Try it here: https://jaganmohankb-git.github.io/pathfinder/`;
-  document.getElementById('whatsapp-share').href = `https://wa.me/?text=${encodeURIComponent(shareMsg)}`;
+  document.getElementById('whatsapp-share').href = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareMsg);
 }
 
 // ===========================================
