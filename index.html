@@ -3,7 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PathFinder India — Career Guidance for 10th & 12th Students</title>
+<title>PathFinder India — Free Career Guidance for 10th & 12th Students</title>
+
+<!-- SEO -->
+<meta name="description" content="Free career guidance tool for Indian students finishing 10th and 12th. Based on marks, RIASEC interest profile, and real 2025 job market data. No login. Works on mobile. All boards — CBSE, ICSE, SSLC, State board.">
+<meta name="keywords" content="career guidance India, 10th 12th stream selection, CBSE career counselling, Tamil Nadu SSLC career, free career tool students">
+
+<!-- Open Graph — WhatsApp and LinkedIn preview -->
+<meta property="og:title" content="PathFinder India — Free Career Guidance for 10th & 12th Students">
+<meta property="og:description" content="Not sure which stream or course to pick after board results? Takes 5 minutes. Based on your marks, interests, and real job market data. Free. No login. All Indian boards.">
+<meta property="og:url" content="https://jaganmohankb-git.github.io/pathfinder/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://jaganmohankb-git.github.io/pathfinder/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_IN">
+<meta property="og:site_name" content="PathFinder India">
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PathFinder India — Free Career Guidance for 10th & 12th Students">
+<meta name="twitter:description" content="Free tool for students finishing 10th & 12th. Based on marks, interests & real job market data. All Indian boards.">
+<meta name="twitter:image" content="https://jaganmohankb-git.github.io/pathfinder/og-image.png">
+
+<!-- WhatsApp specifically uses og tags — no extra tags needed -->
 
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -89,6 +112,23 @@
     max-width: 540px;
     line-height: 1.6;
   }
+  .header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .header-badge {
+    padding: 5px 12px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 100px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
   .header-bg {
     position: absolute;
     top: 0; right: 0; bottom: 0;
@@ -901,6 +941,69 @@
   }
   .fb-thankyou.visible { display: block; }
 
+  /* ── STICKY MOBILE ACTION BAR ── */
+  .sticky-action-bar {
+    display: none; /* shown via JS after result loads */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    z-index: 200;
+    box-shadow: 0 -4px 20px rgba(26,26,46,0.10);
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+  .sticky-action-bar.visible {
+    display: flex;
+  }
+  .sticky-btn-print {
+    flex: 1;
+    padding: 12px 0;
+    background: var(--ink);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .sticky-btn-share {
+    flex: 1;
+    padding: 12px 0;
+    background: #25d366;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+  }
+  /* Only show sticky bar on mobile */
+  @media (min-width: 768px) {
+    .sticky-action-bar { display: none !important; }
+  }
+  /* Add bottom padding to result on mobile so sticky bar doesn't cover content */
+  @media (max-width: 767px) {
+    .paths-container { padding-bottom: 80px; }
+  }
+
   /* ── FOOTER ── */
   .site-footer {
     text-align: center;
@@ -1005,6 +1108,11 @@
     <div class="header-tag">Free · Private · No login required</div>
     <h1 class="header-title">Path<span>Finder</span> India</h1>
     <p class="header-sub">Personalised career guidance for students finishing 10th &amp; 12th — based on your marks, interests, and the real job market.</p>
+    <div class="header-badges">
+      <span class="header-badge">⏱ 5 minutes</span>
+      <span class="header-badge">📱 Works on mobile</span>
+      <span class="header-badge">🎓 All boards — CBSE · ICSE · SSLC · State</span>
+    </div>
   </div>
 </header>
 
@@ -1307,6 +1415,12 @@
   </div>
 
 </main>
+
+<!-- STICKY MOBILE ACTION BAR -->
+<div class="sticky-action-bar" id="sticky-action-bar">
+  <button class="sticky-btn-print" onclick="printResult()">🖨 Save PDF</button>
+  <a class="sticky-btn-share" id="sticky-whatsapp" href="#" target="_blank">💬 Share</a>
+</div>
 
 <!-- FOOTER -->
 <footer class="site-footer">
@@ -1768,6 +1882,15 @@ function generateResult() {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
   track('result_generated', { class: state.classLevel, primary_riasec: primary, avg_mark: avgMark });
+
+  // Show sticky mobile bar and sync WhatsApp link
+  const stickyBar = document.getElementById('sticky-action-bar');
+  if (stickyBar) stickyBar.classList.add('visible');
+  const stickyWa = document.getElementById('sticky-whatsapp');
+  if (stickyWa) {
+    const mainWa = document.getElementById('whatsapp-share');
+    if (mainWa) stickyWa.href = mainWa.href;
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -2093,9 +2216,10 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
     In terms of job market, ${p1.hiring.toLowerCase()} 
     We have also provided two alternative paths that are equally valid — a good counsellor or teacher can help compare all three based on your family\'s priorities and budget.`;
 
-  // WhatsApp share
-  document.getElementById('whatsapp-share').href =
-    `https://wa.me/?text=${encodeURIComponent('I just found my career path using PathFinder India — free tool for 10th & 12th students! Try it: https://jaganmohankb-git.github.io/pathfinder/')}`;
+  // WhatsApp share — personalised with top path
+  const topPathTitle = paths[0] ? paths[0].title : 'my career path';
+  const shareMsg = `I tried PathFinder India and my top career path is: ${topPathTitle}. Free tool for students finishing 10th & 12th — based on marks, interests & real job market data. Try it here: https://jaganmohankb-git.github.io/pathfinder/`;
+  document.getElementById('whatsapp-share').href = `https://wa.me/?text=${encodeURIComponent(shareMsg)}`;
 }
 
 // ═══════════════════════════════════════════
