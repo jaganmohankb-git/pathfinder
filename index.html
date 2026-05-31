@@ -164,6 +164,40 @@
     .header-share-btn { padding: 8px; border-radius: 50%; }
   }
 
+  /* ── LANGUAGE TOGGLE ── */
+  .lang-toggle {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    background: rgba(255,255,255,0.08);
+    border-radius: 100px;
+    padding: 3px;
+  }
+  .lang-btn {
+    padding: 5px 10px;
+    border-radius: 100px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.55);
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    min-width: 32px;
+    text-align: center;
+  }
+  .lang-btn.active {
+    background: var(--accent);
+    color: var(--ink);
+  }
+  .lang-btn:hover:not(.active) {
+    color: white;
+    background: rgba(255,255,255,0.12);
+  }
+
   .header-bg {
     position: absolute;
     top: 0; right: 0; bottom: 0;
@@ -1418,7 +1452,7 @@
   <div class="header-dots"></div>
   <div class="header-inner">
     <div class="header-top-row">
-      <div class="header-tag">Free · Private · No login required</div>
+      <div class="header-tag" data-i18n="tagline">Free · Private · No login required</div>
       <a class="header-share-btn"
          href="https://api.whatsapp.com/send?text=Check%20out%20PathFinder%20India%20%E2%80%94%20free%20career%20guidance%20for%20students%20finishing%2010th%20%26%2012th.%20Takes%205%20minutes%2C%20no%20login%20needed%3A%20https%3A//jaganmohankb-git.github.io/pathfinder/"
          target="_blank"
@@ -1426,8 +1460,13 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
         </svg>
-        <span>Share tool</span>
+        <span data-i18n="share_tool">Share tool</span>
       </a>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="lang-ta" onclick="setLang('ta')">த</button>
+        <button class="lang-btn" id="lang-hi" onclick="setLang('hi')">हि</button>
+      </div>
     </div>
     <h1 class="header-title">Path<span>Finder</span> India</h1>
     <p class="header-sub">Personalised career guidance for students finishing 10th &amp; 12th — based on your marks, interests, and the real job market.</p>
@@ -1450,7 +1489,7 @@
           <span class="step-num">1</span>
           <span class="check-icon">✓</span>
         </div>
-        <div class="step-label">Class</div>
+        <div class="step-label" data-i18n="prog_class">Class</div>
       </div>
 
       <div class="progress-step" id="step-2-pill">
@@ -1458,7 +1497,7 @@
           <span class="step-num">2</span>
           <span class="check-icon">✓</span>
         </div>
-        <div class="step-label">Marks</div>
+        <div class="step-label" data-i18n="prog_marks">Marks</div>
       </div>
 
       <div class="progress-step" id="step-3-pill">
@@ -1466,7 +1505,7 @@
           <span class="step-num">3</span>
           <span class="check-icon">✓</span>
         </div>
-        <div class="step-label">Interests</div>
+        <div class="step-label" data-i18n="prog_interests">Interests</div>
       </div>
 
       <div class="progress-step" id="step-4-pill">
@@ -1474,7 +1513,7 @@
           <span class="step-num">4</span>
           <span class="check-icon">✓</span>
         </div>
-        <div class="step-label">Activities</div>
+        <div class="step-label" data-i18n="prog_activities">Activities</div>
       </div>
 
       <div class="progress-step" id="step-5-pill">
@@ -1482,7 +1521,7 @@
           <span class="step-num">5</span>
           <span class="check-icon">✓</span>
         </div>
-        <div class="step-label">Context</div>
+        <div class="step-label" data-i18n="prog_context">Context</div>
       </div>
 
       <div class="progress-step" id="step-6-pill">
@@ -1490,7 +1529,7 @@
           <span class="step-num">6</span>
           <span class="check-icon">✓</span>
         </div>
-        <div class="step-label">Your Paths</div>
+        <div class="step-label" data-i18n="prog_paths">Your Paths</div>
       </div>
 
     </div>
@@ -1502,32 +1541,32 @@
 
   <!-- STEP 1: CLASS -->
   <div class="section-card visible" id="step-1">
-    <div class="section-label">Step 01</div>
-    <h2 class="section-title">Which class are you completing?</h2>
-    <p class="section-desc">Results will be customised for your stage — post-10th stream selection or post-12th college &amp; course selection.</p>
+    <div class="section-label" data-i18n="step1_label">Step 01</div>
+    <h2 class="section-title" data-i18n="step1_title">Which class are you completing?</h2>
+    <p class="section-desc" data-i18n="step1_desc">Results will be customised for your stage — post-10th stream selection or post-12th college &amp; course selection.</p>
     <p style="font-size:13px; color:var(--accent); font-weight:600; margin-bottom:16px; font-family:'DM Mono',monospace; letter-spacing:0.5px;">TAP TO SELECT YOUR CLASS BELOW</p>
     <div class="class-grid">
       <button class="class-card" onclick="selectClass(10)" id="class-10" type="button">
         <div class="class-card-num">10<sup style="font-size:24px">th</sup></div>
-        <div class="class-card-label">After SSC / SSLC / Matric</div>
-        <div class="class-card-sub">Choose stream: Science, Commerce, Arts or Diploma</div>
+        <div class="class-card-label" data-i18n="class10_label">After SSC / SSLC / Matric</div>
+        <div class="class-card-sub" data-i18n="class10_sub">Choose stream: Science, Commerce, Arts or Diploma</div>
       </button>
       <button class="class-card" onclick="selectClass(12)" id="class-12" type="button">
         <div class="class-card-num">12<sup style="font-size:24px">th</sup></div>
-        <div class="class-card-label">After HSC / PUC / Intermediate</div>
-        <div class="class-card-sub">Choose course &amp; college tier</div>
+        <div class="class-card-label" data-i18n="class12_label">After HSC / PUC / Intermediate</div>
+        <div class="class-card-sub" data-i18n="class12_sub">Choose course &amp; college tier</div>
       </button>
     </div>
     <div class="btn-row">
-      <button class="btn-primary" onclick="goStep(2)" id="btn-step1">Continue →</button>
+      <button class="btn-primary" onclick="goStep(2)" id="btn-step1" data-i18n="btn_continue">Continue →</button>
       <span class="progress-text" id="step1-status">Select your class to proceed</span>
     </div>
   </div>
 
   <!-- STEP 2: MARKS -->
   <div class="section-card" id="step-2">
-    <div class="section-label">Step 02</div>
-    <h2 class="section-title">Your marks</h2>
+    <div class="section-label" data-i18n="step2_label">Step 02</div>
+    <h2 class="section-title" data-i18n="step2_title">Your marks</h2>
     <p class="section-desc">Tap your score band for each subject. Approximate is fine -- pick the closest range. All data stays in your browser.</p>
 
     <!-- Stream for 12th students — shown FIRST -->
@@ -1551,8 +1590,8 @@
 
   <!-- STEP 3: PSYCHOMETRIC -->
   <div class="section-card" id="step-3">
-    <div class="section-label">Step 03 · Interest Profile · ~90 seconds</div>
-    <h2 class="section-title">What kind of work energises you?</h2>
+    <div class="section-label" data-i18n="step3_label">Step 03 · Interest Profile · ~90 seconds</div>
+    <h2 class="section-title" data-i18n="step3_title">What kind of work energises you?</h2>
     <p class="section-desc">These 6 questions help us understand what naturally fits you — not just what you are good at. There are no right or wrong answers. Answer what feels true, not what sounds impressive.</p>
     <div class="why-box">
       <span class="why-icon">💡</span>
@@ -1586,8 +1625,8 @@
 
   <!-- STEP 4: EXTRACURRICULAR -->
   <div class="section-card" id="step-4">
-    <div class="section-label">Step 04 · Beyond Academics · ~1 minute</div>
-    <h2 class="section-title">Your activities &amp; strengths</h2>
+    <div class="section-label" data-i18n="step4_label">Step 04 · Beyond Academics · ~1 minute</div>
+    <h2 class="section-title" data-i18n="step4_title">Your activities &amp; strengths</h2>
     <p class="section-desc">These matter more than you think. A sport, an award, or community work often reveals strengths your marks don't. Tick everything that applies.</p>
     <div class="extras-grid">
       <div class="check-group">
@@ -1623,8 +1662,8 @@
 
   <!-- STEP 5: CONTEXT -->
   <div class="section-card" id="step-5">
-    <div class="section-label">Step 05 · Your Context · ~30 seconds</div>
-    <h2 class="section-title">A few more things</h2>
+    <div class="section-label" data-i18n="step5_label">Step 05 · Your Context · ~30 seconds</div>
+    <h2 class="section-title" data-i18n="step5_title">A few more things</h2>
     <p class="section-desc">This helps us give you realistic recommendations — not just aspirational ones. Your answers here are never stored or shared.</p>
     <div class="extras-grid">
       <div class="field-group">
@@ -1806,6 +1845,221 @@
 </footer>
 
 <script>
+// ===========================================
+//  LANGUAGE / i18n
+// ===========================================
+let currentLang = 'en';
+
+const translations = {
+  en: {
+    tagline: 'Free - Private - No login required',
+    share_tool: 'Share tool',
+    step1_label: 'Step 01',
+    step1_title: 'Which class are you completing?',
+    step1_desc: 'Results will be customised for your stage — post-10th stream selection or post-12th college & course selection.',
+    class10_label: 'After SSC / SSLC / Matric',
+    class10_sub: 'Choose stream: Science, Commerce, Arts or Diploma',
+    class12_label: 'After HSC / PUC / Intermediate',
+    class12_sub: 'Choose course & college tier',
+    tap_hint: 'TAP TO SELECT YOUR CLASS BELOW',
+    step2_label: 'Step 02',
+    step2_title: 'Your marks',
+    step2_desc: 'Tap your score band for each subject. Approximate is fine — pick the closest range. All data stays in your browser.',
+    step2_stream_label: 'First, select your 11th-12th Stream',
+    step2_marks_label: 'Now enter your subject marks',
+    step3_label: 'Step 03 - Interest Profile - ~90 seconds',
+    step3_title: 'What kind of work energises you?',
+    step3_desc: 'These 6 questions help us understand what naturally fits you. There are no right or wrong answers.',
+    why_text: 'Research shows people stay longer and perform better in careers that match their interests, not just their marks. This takes about 90 seconds.',
+    scale_low: '1 — Not me at all',
+    scale_high: '5 — Absolutely me',
+    midpoint_title: 'Core profile done!',
+    midpoint_desc: '6 more questions (about 30 seconds) will make your result significantly more accurate. Want to answer them?',
+    midpoint_yes: 'Yes, improve my result',
+    midpoint_skip: 'Skip — use my 6 answers',
+    step4_label: 'Step 04 - Beyond Academics - ~1 minute',
+    step4_title: 'Your activities & strengths',
+    step4_desc: 'These matter more than you think. A sport, an award, or community work often reveals strengths your marks do not show.',
+    step5_label: 'Step 05 - Your Context - ~30 seconds',
+    step5_title: 'A few more things',
+    step5_desc: 'This helps us give you realistic recommendations. Your answers here are never stored or shared.',
+    btn_continue: 'Continue',
+    btn_back: 'Back',
+    btn_generate: 'Generate My Paths',
+    prog_class: 'Class',
+    prog_marks: 'Marks',
+    prog_interests: 'Interests',
+    prog_activities: 'Activities',
+    prog_context: 'Context',
+    prog_paths: 'Your Paths',
+    result_tag: 'Your Personalised Report - PathFinder India',
+    feedback_q: 'Was this guidance helpful for you?',
+    feedback_yes: 'Yes, helpful',
+    feedback_no: 'Not really',
+    feedback_thanks: 'Thank you! Your feedback helps improve PathFinder for future students.',
+  },
+
+  ta: {
+    tagline: 'இலவசம் - தனிப்பட்டது - உள்நுழைவு தேவையில்லை',
+    share_tool: 'பகிர்',
+    step1_label: 'படி 01',
+    step1_title: 'நீங்கள் எந்த வகுப்பை முடிக்கிறீர்கள்?',
+    step1_desc: 'உங்கள் நிலைக்கு ஏற்ப முடிவுகள் தனிப்பயனாக்கப்படும் — 10ஆம் வகுப்பு பிறகு பிரிவு தேர்வு அல்லது 12ஆம் வகுப்பு பிறகு கல்லூரி தேர்வு.',
+    class10_label: 'SSC / SSLC / Matric முடித்த பிறகு',
+    class10_sub: 'பிரிவு தேர்வு: அறிவியல், வணிகம், கலை அல்லது டிப்ளமோ',
+    class12_label: 'HSC / PUC / Intermediate முடித்த பிறகு',
+    class12_sub: 'படிப்பு மற்றும் கல்லூரி நிலை தேர்வு செய்யுங்கள்',
+    tap_hint: 'கீழே உங்கள் வகுப்பை தேர்வு செய்யுங்கள்',
+    step2_label: 'படி 02',
+    step2_title: 'உங்கள் மதிப்பெண்கள்',
+    step2_desc: 'ஒவ்வொரு பாடத்திற்கும் உங்கள் மதிப்பெண் வரம்பை தட்டவும். தோராயமாக சரி — மிக நெருங்கிய வரம்பை தேர்வு செய்யுங்கள்.',
+    step2_stream_label: 'முதலில் உங்கள் 11-12ஆம் வகுப்பு பிரிவை தேர்வு செய்யுங்கள்',
+    step2_marks_label: 'இப்போது உங்கள் பாட மதிப்பெண்களை உள்ளிடுங்கள்',
+    step3_label: 'படி 03 - ஆர்வ சுயவிவரம் - ~90 வினாடிகள்',
+    step3_title: 'எந்த வகையான வேலை உங்களுக்கு ஆற்றல் அளிக்கிறது?',
+    step3_desc: 'இந்த 6 கேள்விகள் உங்களுக்கு இயல்பாக எது பொருந்துகிறது என்பதை புரிந்துகொள்ள உதவுகின்றன. சரியான அல்லது தவறான பதில்கள் இல்லை.',
+    why_text: 'ஆராய்ச்சி காட்டுகிறது: தங்கள் ஆர்வங்களுக்கு பொருந்தும் தொழிலில் மக்கள் நீண்ட காலம் நிலைத்து சிறப்பாக செயல்படுகிறார்கள். இது சுமார் 90 வினாடிகள் ஆகும்.',
+    scale_low: '1 — என்னை பற்றியது இல்லை',
+    scale_high: '5 — முற்றிலும் என்னை பற்றியது',
+    midpoint_title: 'அடிப்படை சுயவிவரம் தயார்!',
+    midpoint_desc: '6 கேள்விகள் மேலும் (சுமார் 30 வினாடிகள்) உங்கள் முடிவை கணிசமாக மேம்படுத்தும். தொடர விரும்புகிறீர்களா?',
+    midpoint_yes: 'ஆம், என் முடிவை மேம்படுத்து',
+    midpoint_skip: 'தவிர் — என் 6 பதில்களை பயன்படுத்து',
+    step4_label: 'படி 04 - கல்வி அல்லாத திறன்கள் - ~1 நிமிடம்',
+    step4_title: 'உங்கள் செயல்பாடுகள் மற்றும் திறன்கள்',
+    step4_desc: 'இவை நீங்கள் நினைப்பதை விட முக்கியமானவை. விளையாட்டு, விருது அல்லது சமூக பணி உங்கள் மதிப்பெண்கள் காட்டாத திறன்களை வெளிப்படுத்துகின்றன.',
+    step5_label: 'படி 05 - உங்கள் சூழல் - ~30 வினாடிகள்',
+    step5_title: 'இன்னும் சில விவரங்கள்',
+    step5_desc: 'இது உங்களுக்கு யதார்த்தமான பரிந்துரைகளை வழங்க உதவுகிறது. உங்கள் பதில்கள் எப்போதும் சேமிக்கப்படுவதில்லை.',
+    btn_continue: 'தொடர',
+    btn_back: 'பின்',
+    btn_generate: 'என் பாதைகளை காட்டு',
+    prog_class: 'வகுப்பு',
+    prog_marks: 'மதிப்பெண்',
+    prog_interests: 'ஆர்வங்கள்',
+    prog_activities: 'செயல்பாடு',
+    prog_context: 'சூழல்',
+    prog_paths: 'உங்கள் பாதை',
+    result_tag: 'உங்கள் தனிப்பயன் அறிக்கை - PathFinder India',
+    feedback_q: 'இந்த வழிகாட்டுதல் உதவியாக இருந்ததா?',
+    feedback_yes: 'ஆம், உதவியது',
+    feedback_no: 'அவ்வளவு இல்லை',
+    feedback_thanks: 'நன்றி! உங்கள் கருத்து எதிர்கால மாணவர்களுக்கு PathFinder-ஐ மேம்படுத்த உதவுகிறது.',
+  },
+
+  hi: {
+    tagline: 'मुफ्त - निजी - लॉगिन की जरूरत नहीं',
+    share_tool: 'शेयर करें',
+    step1_label: 'चरण 01',
+    step1_title: 'आप कौन सी कक्षा पूरी कर रहे हैं?',
+    step1_desc: 'परिणाम आपके चरण के अनुसार अनुकूलित किए जाएंगे — 10वीं के बाद स्ट्रीम चुनाव या 12वीं के बाद कॉलेज और कोर्स चुनाव।',
+    class10_label: 'SSC / SSLC / Matric के बाद',
+    class10_sub: 'स्ट्रीम चुनें: Science, Commerce, Arts या Diploma',
+    class12_label: 'HSC / PUC / Intermediate के बाद',
+    class12_sub: 'कोर्स और कॉलेज टियर चुनें',
+    tap_hint: 'नीचे अपनी कक्षा चुनें',
+    step2_label: 'चरण 02',
+    step2_title: 'आपके अंक',
+    step2_desc: 'प्रत्येक विषय के लिए अपना अंक बैंड टैप करें। अनुमानित ठीक है — सबसे करीबी सीमा चुनें।',
+    step2_stream_label: 'पहले अपनी 11-12वीं स्ट्रीम चुनें',
+    step2_marks_label: 'अब अपने विषय के अंक दर्ज करें',
+    step3_label: 'चरण 03 - रुचि प्रोफाइल - ~90 सेकंड',
+    step3_title: 'किस तरह का काम आपको ऊर्जा देता है?',
+    step3_desc: 'ये 6 प्रश्न यह समझने में मदद करते हैं कि आपके लिए स्वाभाविक रूप से क्या उपयुक्त है। कोई सही या गलत जवाब नहीं है।',
+    why_text: 'शोध दिखाता है कि जो लोग अपनी रुचि के अनुसार करियर चुनते हैं वे अधिक समय तक टिकते हैं। इसमें लगभग 90 सेकंड लगते हैं।',
+    scale_low: '1 — बिल्कुल मेरे जैसा नहीं',
+    scale_high: '5 — बिल्कुल मेरे जैसा',
+    midpoint_title: 'मूल प्रोफाइल तैयार!',
+    midpoint_desc: '6 और प्रश्न (लगभग 30 सेकंड) आपके परिणाम को काफी बेहतर बनाएंगे। क्या आप जारी रखना चाहते हैं?',
+    midpoint_yes: 'हां, मेरा परिणाम सुधारें',
+    midpoint_skip: 'छोड़ें — मेरे 6 जवाब उपयोग करें',
+    step4_label: 'चरण 04 - पाठ्येतर गतिविधियां - ~1 मिनट',
+    step4_title: 'आपकी गतिविधियां और ताकत',
+    step4_desc: 'ये आपके अंकों से कहीं ज्यादा महत्वपूर्ण हैं। खेल, पुरस्कार या सामुदायिक कार्य अक्सर वो ताकत दिखाते हैं जो अंक नहीं दिखाते।',
+    step5_label: 'चरण 05 - आपका संदर्भ - ~30 सेकंड',
+    step5_title: 'कुछ और बातें',
+    step5_desc: 'यह हमें यथार्थवादी सुझाव देने में मदद करता है। आपके जवाब कभी सहेजे नहीं जाते।',
+    btn_continue: 'जारी रखें',
+    btn_back: 'वापस',
+    btn_generate: 'मेरे रास्ते दिखाएं',
+    prog_class: 'कक्षा',
+    prog_marks: 'अंक',
+    prog_interests: 'रुचियां',
+    prog_activities: 'गतिविधि',
+    prog_context: 'संदर्भ',
+    prog_paths: 'आपके रास्ते',
+    result_tag: 'आपकी व्यक्तिगत रिपोर्ट - PathFinder India',
+    feedback_q: 'क्या यह मार्गदर्शन आपके लिए उपयोगी था?',
+    feedback_yes: 'हां, उपयोगी था',
+    feedback_no: 'ज्यादा नहीं',
+    feedback_thanks: 'धन्यवाद! आपकी प्रतिक्रिया भविष्य के छात्रों के लिए PathFinder को बेहतर बनाने में मदद करती है।',
+  },
+};
+
+function getTypeLabel(type) {
+  const labels = {
+    en: { R:'Realistic', I:'Investigative', A:'Artistic', S:'Social', E:'Enterprising', C:'Conventional' },
+    ta: { R:'நடைமுறை', I:'விசாரணை', A:'கலை', S:'சமூக', E:'தொழில்முனைவு', C:'ஒழுங்கு' },
+    hi: { R:'व्यावहारिक', I:'खोजी', A:'कलात्मक', S:'सामाजिक', E:'उद्यमी', C:'व्यवस्थित' },
+  };
+  return (labels[currentLang] || labels.en)[type] || type;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  // Update toggle buttons
+  ['en','ta','hi'].forEach(l => {
+    const btn = document.getElementById('lang-' + l);
+    if (btn) btn.classList.toggle('active', l === lang);
+  });
+  // Swap all data-i18n elements
+  const t = translations[lang];
+  if (!t) return;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) el.textContent = t[key];
+  });
+  // Update dynamic elements
+  applyLangToDynamic(t);
+  // Update page title
+  document.title = lang === 'ta'
+    ? 'PathFinder India — 10வது & 12வது மாணவர்களுக்கான இலவச வழிகாட்டுதல்'
+    : lang === 'hi'
+    ? 'PathFinder India — 10वीं और 12वीं छात्रों के लिए मुफ्त करियर गाइडेंस'
+    : 'PathFinder India — Free Career Guidance for 10th & 12th Students';
+  track('language_change', { language: lang });
+}
+
+function applyLangToDynamic(t) {
+  // Scale legend
+  const scales = document.querySelectorAll('.scale-end');
+  if (scales.length >= 2) { scales[0].textContent = t.scale_low; scales[scales.length-1].textContent = t.scale_high; }
+  // Mid-point prompt
+  const mpTitle = document.querySelector('.midpoint-title');
+  const mpDesc  = document.querySelector('.midpoint-desc');
+  const mpYes   = document.querySelector('.midpoint-yes');
+  const mpSkip  = document.querySelector('.midpoint-skip');
+  if (mpTitle) mpTitle.textContent = t.midpoint_title;
+  if (mpDesc)  mpDesc.textContent  = t.midpoint_desc;
+  if (mpYes)   mpYes.textContent   = t.midpoint_yes;
+  if (mpSkip)  mpSkip.textContent  = t.midpoint_skip;
+  // Feedback
+  const fbQ  = document.querySelector('.feedback-question');
+  const fbUp = document.querySelector('.fb-btn.thumbs-up');
+  const fbDn = document.querySelector('.fb-btn.thumbs-down');
+  const fbTy = document.querySelector('#fb-thankyou');
+  if (fbQ)  fbQ.textContent  = t.feedback_q;
+  if (fbUp) fbUp.textContent = t.feedback_yes;
+  if (fbDn) fbDn.textContent = t.feedback_no;
+  if (fbTy) fbTy.textContent = t.feedback_thanks;
+  // Result tag
+  const rt = document.querySelector('.result-tag');
+  if (rt) rt.textContent = t.result_tag;
+  // Stream heading
+  const sh = document.getElementById('marks-heading');
+  if (sh) { const sl = sh.querySelector('.section-label'); if (sl) sl.textContent = t.step2_marks_label; }
+}
+
 // ===========================================
 //  STATE
 // ===========================================
@@ -2030,12 +2284,11 @@ function buildSubjectsForStream(streamId) {
 //  PSYCHOMETRIC BUILD
 // ===========================================
 function renderQuestions(questions) {
-  const typeLabels = { R:'Realistic', I:'Investigative', A:'Artistic', S:'Social', E:'Enterprising', C:'Conventional' };
   return questions.map(q => {
     const savedVal = riasecAnswers[q.id] || null;
     return `
     <div class="psycho-q ${savedVal ? 'answered' : ''}" id="pq-${q.id}">
-      <div class="psycho-q-type">${typeLabels[q.type]}</div>
+      <div class="psycho-q-type">${getTypeLabel(q.type)}</div>
       <div class="psycho-q-text">${q.text}</div>
       <div class="likert">
         <div class="likert-buttons">
