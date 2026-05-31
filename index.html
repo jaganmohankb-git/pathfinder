@@ -307,6 +307,17 @@
     transition: all 0.25s;
     text-align: center;
     background: var(--warm-gray);
+    /* Safari fix: make div clickable reliably */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  /* Reset button defaults for class-card */
+  button.class-card {
+    font-family: inherit;
+    width: 100%;
+    border: 2px solid var(--border);
   }
   .class-card:hover {
     border-color: var(--accent);
@@ -393,6 +404,13 @@
     cursor: pointer;
     transition: all 0.2s;
     background: var(--warm-gray);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: inherit;
+    width: 100%;
+    text-align: left;
   }
   .group-chip:hover { border-color: var(--accent); background: white; }
   .group-chip.selected {
@@ -428,6 +446,79 @@
     opacity: 0.5;
     flex-shrink: 0;
   }
+
+  /* ── WHY BOX ── */
+  .why-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(232,168,56,0.08);
+    border: 1px solid rgba(232,168,56,0.25);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .why-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .why-text { flex: 1; }
+
+  /* ── MID-POINT PROMPT ── */
+  .midpoint-prompt {
+    margin: 8px 0 0;
+    animation: fadeIn 0.4s ease;
+  }
+  .midpoint-inner {
+    background: var(--ink);
+    color: white;
+    border-radius: 12px;
+    padding: 20px 22px;
+    text-align: center;
+  }
+  .midpoint-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .midpoint-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  .midpoint-btns {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .midpoint-yes {
+    padding: 10px 22px;
+    background: var(--accent);
+    color: var(--ink);
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .midpoint-yes:hover { background: #d4952e; }
+  .midpoint-skip {
+    padding: 10px 22px;
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .midpoint-skip:hover { background: rgba(255,255,255,0.2); }
 
   /* ── PSYCHOMETRIC QUESTIONS ── */
   .psycho-questions { display: flex; flex-direction: column; gap: 20px; }
@@ -466,7 +557,9 @@
     display: flex; align-items: center; justify-content: center;
     color: var(--mid);
     -webkit-tap-highlight-color: transparent;
-    /* Full width tap area — much easier on mobile */
+    touch-action: manipulation;
+    font-family: inherit;
+    /* Full width tap area -- much easier on mobile */
   }
   .likert-btn:hover { border-color: var(--accent); color: var(--accent); }
   .likert-btn.active {
@@ -816,6 +909,20 @@
     text-decoration: none;
   }
   .btn-share:hover { background: #20b858; }
+  .btn-text-share {
+    padding: 12px 24px;
+    background: transparent;
+    color: var(--sky);
+    border: 1.5px solid var(--sky);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-text-share:hover { background: rgba(21,101,192,0.08); }
+
   .btn-restart {
     padding: 12px 24px;
     background: transparent;
@@ -1096,6 +1203,13 @@
   .fade-in { animation: fadeIn 0.4s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   .section-card { animation: fadeIn 0.35s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
 </style>
 </head>
 <body>
@@ -1182,17 +1296,18 @@
     <div class="section-label">Step 01</div>
     <h2 class="section-title">Which class are you completing?</h2>
     <p class="section-desc">Results will be customised for your stage — post-10th stream selection or post-12th college &amp; course selection.</p>
+    <p style="font-size:13px; color:var(--accent); font-weight:600; margin-bottom:16px; font-family:'DM Mono',monospace; letter-spacing:0.5px;">TAP TO SELECT YOUR CLASS BELOW</p>
     <div class="class-grid">
-      <div class="class-card" onclick="selectClass(10)" id="class-10">
+      <button class="class-card" onclick="selectClass(10)" id="class-10" type="button">
         <div class="class-card-num">10<sup style="font-size:24px">th</sup></div>
         <div class="class-card-label">After SSC / SSLC / Matric</div>
         <div class="class-card-sub">Choose stream: Science, Commerce, Arts or Diploma</div>
-      </div>
-      <div class="class-card" onclick="selectClass(12)" id="class-12">
+      </button>
+      <button class="class-card" onclick="selectClass(12)" id="class-12" type="button">
         <div class="class-card-num">12<sup style="font-size:24px">th</sup></div>
         <div class="class-card-label">After HSC / PUC / Intermediate</div>
         <div class="class-card-sub">Choose course &amp; college tier</div>
-      </div>
+      </button>
     </div>
     <div class="btn-row">
       <button class="btn-primary" onclick="goStep(2)" id="btn-step1">Continue →</button>
@@ -1227,27 +1342,44 @@
 
   <!-- STEP 3: PSYCHOMETRIC -->
   <div class="section-card" id="step-3">
-    <div class="section-label">Step 03 · Interest Profile</div>
-    <h2 class="section-title">What are you naturally drawn to?</h2>
-    <p class="section-desc">Based on Holland's RIASEC — a globally validated career interest model used for 60+ years.</p>
+    <div class="section-label">Step 03 · Interest Profile · ~90 seconds</div>
+    <h2 class="section-title">What kind of work energises you?</h2>
+    <p class="section-desc">These 6 questions help us understand what naturally fits you — not just what you are good at. There are no right or wrong answers. Answer what feels true, not what sounds impressive.</p>
+    <div class="why-box">
+      <span class="why-icon">💡</span>
+      <span class="why-text">Research shows people stay longer and perform better in careers that match their interests, not just their marks. This takes about 90 seconds.</span>
+    </div>
     <div class="scale-legend">
       <span class="scale-end">1 — Not me at all</span>
       <span class="scale-arrow">→</span>
       <span class="scale-end">5 — Absolutely me</span>
     </div>
     <div class="psycho-questions" id="psycho-questions"></div>
+
+    <!-- Mid-point prompt — shown after 6 mandatory questions answered -->
+    <div class="midpoint-prompt" id="midpoint-prompt" style="display:none;">
+      <div class="midpoint-inner">
+        <div class="midpoint-title">✅ Core profile done!</div>
+        <div class="midpoint-desc">6 more questions (about 30 seconds) will make your result significantly more accurate. Want to answer them?</div>
+        <div class="midpoint-btns">
+          <button class="midpoint-yes" onclick="showOptionalQuestions()">Yes, improve my result</button>
+          <button class="midpoint-skip" onclick="goStep(4)">Skip — use my 6 answers</button>
+        </div>
+      </div>
+    </div>
+
     <div class="btn-row">
       <button class="btn-secondary" onclick="goStep(2)">← Back</button>
-      <button class="btn-primary" onclick="goStep(4)">Continue →</button>
-      <span class="progress-text" id="psycho-status">0 / 12 answered</span>
+      <button class="btn-primary" id="psycho-continue-btn" onclick="goStep(4)" style="display:none;">Continue →</button>
+      <span class="progress-text" id="psycho-status">0 / 6 answered</span>
     </div>
   </div>
 
   <!-- STEP 4: EXTRACURRICULAR -->
   <div class="section-card" id="step-4">
-    <div class="section-label">Step 04 · Beyond Academics</div>
+    <div class="section-label">Step 04 · Beyond Academics · ~1 minute</div>
     <h2 class="section-title">Your activities &amp; strengths</h2>
-    <p class="section-desc">These matter more than you think. A sport, an award, or community work shapes the path that will actually fit you.</p>
+    <p class="section-desc">These matter more than you think. A sport, an award, or community work often reveals strengths your marks don't. Tick everything that applies.</p>
     <div class="extras-grid">
       <div class="check-group">
         <label>Sports & Physical</label>
@@ -1282,9 +1414,9 @@
 
   <!-- STEP 5: CONTEXT -->
   <div class="section-card" id="step-5">
-    <div class="section-label">Step 05 · Your Context</div>
+    <div class="section-label">Step 05 · Your Context · ~30 seconds</div>
     <h2 class="section-title">A few more things</h2>
-    <p class="section-desc">This helps us give you realistic recommendations — not just aspirational ones.</p>
+    <p class="section-desc">This helps us give you realistic recommendations — not just aspirational ones. Your answers here are never stored or shared.</p>
     <div class="extras-grid">
       <div class="field-group">
         <label>City / Town type</label>
@@ -1385,9 +1517,14 @@
       <div class="action-bar">
         <button class="btn-print" onclick="printResult()">🖨 Print / Save as PDF</button>
         <a class="btn-share" id="whatsapp-share" href="#" target="_blank">💬 Share on WhatsApp</a>
+        <button class="btn-text-share" onclick="copyTextReport()" id="btn-text-copy">📋 Copy Text Report</button>
         <button class="btn-restart" onclick="restartTool()">Start Over</button>
       </div>
+      <div id="copy-confirm" style="display:none; margin-top:8px; font-size:13px; color:var(--sage); font-weight:600;">✅ Copied! Paste it in WhatsApp or any chat.</div>
 
+      <div id="partial-psycho-note" style="display:none; margin-bottom:12px; padding:12px 16px; background:rgba(232,168,56,0.08); border-radius:8px; border-left:3px solid var(--accent); font-size:13px; color:var(--ink);">
+        <strong>💡 Tip:</strong> You answered the 6 core interest questions. Answering all 12 next time will improve the accuracy of your career matches.
+      </div>
       <div class="disclaimer">
         <strong>Note:</strong> PathFinder India is a free guidance tool, not a substitute for professional career counselling. Recommendations are based on the information you provided and publicly available job market data (Naukri JobSpeak, NASSCOM, 2025–26). No data is stored or shared — everything runs in your browser. Built by <a href="https://jkadvisory.in" target="_blank">JK Advisory</a>.
       </div>
@@ -1429,9 +1566,9 @@
 </footer>
 
 <script>
-// ═══════════════════════════════════════════
+// ===========================================
 //  STATE
-// ═══════════════════════════════════════════
+// ===========================================
 const state = {
   classLevel: null,
   marks: {},
@@ -1447,9 +1584,9 @@ const state = {
 let currentStep = 1;
 const TOTAL_STEPS = 6;
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  MARKS DEFINITIONS
-// ═══════════════════════════════════════════
+// ===========================================
 const marks10 = [
   { id: 'maths', label: 'Mathematics' },
   { id: 'science', label: 'Science' },
@@ -1459,9 +1596,9 @@ const marks10 = [
 ];
 
 const streams12 = [
-  { id: 'pcm', label: 'PCM (Physics, Chemistry, Maths)', sub: 'Science — Engineering track' },
-  { id: 'pcb', label: 'PCB (Physics, Chemistry, Biology)', sub: 'Science — Medical track' },
-  { id: 'pcmb', label: 'PCMB (All four)', sub: 'Science — Both tracks' },
+  { id: 'pcm', label: 'PCM (Physics, Chemistry, Maths)', sub: 'Science -- Engineering track' },
+  { id: 'pcb', label: 'PCB (Physics, Chemistry, Biology)', sub: 'Science -- Medical track' },
+  { id: 'pcmb', label: 'PCMB (All four)', sub: 'Science -- Both tracks' },
   { id: 'commerce_maths', label: 'Commerce with Maths', sub: 'CA, Finance, Analytics' },
   { id: 'commerce', label: 'Commerce without Maths', sub: 'Business, Management' },
   { id: 'arts', label: 'Arts / Humanities', sub: 'Law, Journalism, Education' },
@@ -1501,48 +1638,55 @@ const marks12subjects = {
 const markBands = [
   { value: '', label: 'Select marks' },
   { value: '95', label: '95% and above' },
-  { value: '85', label: '85 – 94%' },
-  { value: '75', label: '75 – 84%' },
-  { value: '65', label: '65 – 74%' },
-  { value: '55', label: '55 – 64%' },
-  { value: '45', label: '45 – 54%' },
+  { value: '85', label: '85 - 94%' },
+  { value: '75', label: '75 - 84%' },
+  { value: '65', label: '65 - 74%' },
+  { value: '55', label: '55 - 64%' },
+  { value: '45', label: '45 - 54%' },
   { value: '35', label: 'Below 45%' },
 ];
 
-// ═══════════════════════════════════════════
-//  PSYCHOMETRIC QUESTIONS (12 — 2 per RIASEC type)
-// ═══════════════════════════════════════════
+// ===========================================
+//  PSYCHOMETRIC QUESTIONS (12 -- 2 per RIASEC type)
+// ===========================================
+// First 6 = mandatory (one per RIASEC type, most relatable)
+// Last 6 = optional (second question per type, improves accuracy)
 const psychoQuestions = [
-  { id: 'R1', type: 'R', text: 'I enjoy building, repairing, or assembling things with my hands.' },
-  { id: 'R2', type: 'R', text: 'I prefer working outdoors or with machines and tools over sitting at a desk.' },
-  { id: 'I1', type: 'I', text: 'I enjoy solving puzzles, figuring out "why" things work, and reading about science or technology.' },
-  { id: 'I2', type: 'I', text: 'I am curious about how the world works and like doing experiments or analysis.' },
-  { id: 'A1', type: 'A', text: 'I love expressing myself through art, music, writing, design, or performance.' },
-  { id: 'A2', type: 'A', text: 'I prefer open-ended creative projects over step-by-step tasks with fixed rules.' },
-  { id: 'S1', type: 'S', text: 'I genuinely enjoy helping, teaching, or listening to people and solving their problems.' },
-  { id: 'S2', type: 'S', text: 'I feel energised after working in a team or volunteering in the community.' },
-  { id: 'E1', type: 'E', text: 'I enjoy leading a group, convincing people, or organising events and projects.' },
-  { id: 'E2', type: 'E', text: 'I am drawn to business ideas, competitions, and situations where I can influence outcomes.' },
-  { id: 'C1', type: 'C', text: 'I prefer organised, structured work where I can follow clear processes and keep records.' },
-  { id: 'C2', type: 'C', text: 'I like working with numbers, spreadsheets, or following detailed instructions accurately.' },
+  // -- MANDATORY: one per type --
+  { id: 'R1', type: 'R', mandatory: true,  text: 'I enjoy building, repairing, or assembling things with my hands.' },
+  { id: 'I1', type: 'I', mandatory: true,  text: 'I enjoy solving puzzles, figuring out why things work, and reading about science or technology.' },
+  { id: 'A1', type: 'A', mandatory: true,  text: 'I love expressing myself through art, music, writing, design, or performance.' },
+  { id: 'S1', type: 'S', mandatory: true,  text: 'I genuinely enjoy helping, teaching, or listening to people and solving their problems.' },
+  { id: 'E1', type: 'E', mandatory: true,  text: 'I enjoy leading a group, convincing people, or organising events and projects.' },
+  { id: 'C1', type: 'C', mandatory: true,  text: 'I prefer organised, structured work where I can follow clear processes and keep records.' },
+  // -- OPTIONAL: second question per type --
+  { id: 'R2', type: 'R', mandatory: false, text: 'I prefer working outdoors or with machines and tools over sitting at a desk.' },
+  { id: 'I2', type: 'I', mandatory: false, text: 'I am curious about how the world works and like doing experiments or analysis.' },
+  { id: 'A2', type: 'A', mandatory: false, text: 'I prefer open-ended creative projects over step-by-step tasks with fixed rules.' },
+  { id: 'S2', type: 'S', mandatory: false, text: 'I feel energised after working in a team or volunteering in the community.' },
+  { id: 'E2', type: 'E', mandatory: false, text: 'I am drawn to business ideas, competitions, and situations where I can influence outcomes.' },
+  { id: 'C2', type: 'C', mandatory: false, text: 'I like working with numbers, spreadsheets, or following detailed instructions accurately.' },
 ];
+
+// Track whether optional questions are shown
+let optionalShown = false;
 
 const riasecAnswers = {};
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  CLASS SELECTION
-// ═══════════════════════════════════════════
+// ===========================================
 function selectClass(level) {
   state.classLevel = level;
   document.getElementById('class-10').classList.toggle('selected', level === 10);
   document.getElementById('class-12').classList.toggle('selected', level === 12);
-  document.getElementById('step1-status').textContent = `Class ${level}th selected ✓`;
+  document.getElementById('step1-status').textContent = `Class ${level}th selected v`;
   track('select_class', { class_level: level });
 }
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  MARKS GRID BUILD
-// ═══════════════════════════════════════════
+// ===========================================
 function buildMarksGrid() {
   const grid = document.getElementById('marks-grid');
   const streamWrap = document.getElementById('stream-selector-wrap');
@@ -1565,10 +1709,10 @@ function buildMarksGrid() {
     // 12th: show stream selector FIRST, marks appear only after stream is selected
     streamWrap.style.display = 'block';
     streamGrid.innerHTML = streams12.map(s => `
-      <div class="group-chip" id="stream-${s.id}" onclick="selectStream('${s.id}')">
+      <button class="group-chip" id="stream-${s.id}" onclick="selectStream('${s.id}')" type="button">
         <div class="group-chip-name">${s.label.split('(')[0].trim()}</div>
         <div class="group-chip-sub">${s.sub}</div>
-      </div>`).join('');
+      </button>`).join('');
     // Restore previously selected stream if navigating back
     if (state.stream12) {
       document.getElementById(`stream-${state.stream12}`).classList.add('selected');
@@ -1576,13 +1720,13 @@ function buildMarksGrid() {
       const heading = document.getElementById('marks-heading');
       if (heading) heading.style.display = 'block';
     }
-    // Otherwise leave marks grid empty — wait for stream selection
+    // Otherwise leave marks grid empty -- wait for stream selection
   }
 }
 
 function selectStream(id) {
   state.stream12 = id;
-  // Clear saved marks when stream changes — avoids stale subject data
+  // Clear saved marks when stream changes -- avoids stale subject data
   state.marks = {};
   document.querySelectorAll('[id^="stream-"]').forEach(el => el.classList.remove('selected'));
   document.getElementById(`stream-${id}`).classList.add('selected');
@@ -1610,13 +1754,12 @@ function buildSubjectsForStream(streamId) {
   });
 }
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  PSYCHOMETRIC BUILD
-// ═══════════════════════════════════════════
-function buildPsychoQuestions() {
+// ===========================================
+function renderQuestions(questions) {
   const typeLabels = { R:'Realistic', I:'Investigative', A:'Artistic', S:'Social', E:'Enterprising', C:'Conventional' };
-  const container = document.getElementById('psycho-questions');
-  container.innerHTML = psychoQuestions.map(q => {
+  return questions.map(q => {
     const savedVal = riasecAnswers[q.id] || null;
     return `
     <div class="psycho-q ${savedVal ? 'answered' : ''}" id="pq-${q.id}">
@@ -1631,10 +1774,52 @@ function buildPsychoQuestions() {
       </div>
     </div>`;
   }).join('');
+}
+
+function buildPsychoQuestions() {
+  const container = document.getElementById('psycho-questions');
+  const mandatory = psychoQuestions.filter(q => q.mandatory);
+  const optional  = psychoQuestions.filter(q => !q.mandatory);
+
+  if (optionalShown) {
+    // Show all 12
+    container.innerHTML = renderQuestions(mandatory) + renderQuestions(optional);
+  } else {
+    // Show only mandatory 6
+    container.innerHTML = renderQuestions(mandatory);
+  }
+
   // Restore count display
-  const count = Object.keys(riasecAnswers).length;
+  const mandAnswered = mandatory.filter(q => riasecAnswers[q.id]).length;
+  const totalAnswered = Object.keys(riasecAnswers).length;
   const status = document.getElementById('psycho-status');
-  if (status) status.textContent = `${count} / 12 answered`;
+
+  if (optionalShown) {
+    if (status) status.textContent = `${totalAnswered} / 12 answered`;
+    // Show continue button, hide midpoint prompt
+    const cont = document.getElementById('psycho-continue-btn');
+    if (cont) cont.style.display = 'inline-flex';
+    const mp = document.getElementById('midpoint-prompt');
+    if (mp) mp.style.display = 'none';
+  } else {
+    if (status) status.textContent = `${mandAnswered} / 6 answered`;
+    // Show midpoint prompt if all 6 mandatory answered and returning
+    if (mandAnswered === 6) {
+      const mp = document.getElementById('midpoint-prompt');
+      if (mp) mp.style.display = 'block';
+    }
+  }
+}
+
+function showOptionalQuestions() {
+  optionalShown = true;
+  buildPsychoQuestions();
+  track('optional_questions_shown', {});
+  // Scroll to first optional question
+  setTimeout(() => {
+    const el = document.getElementById('pq-R2');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
 }
 
 function answerPsycho(qid, type, val, btn) {
@@ -1644,10 +1829,31 @@ function answerPsycho(qid, type, val, btn) {
   row.classList.add('answered');
   row.querySelectorAll('.likert-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  // update status
-  const count = Object.keys(riasecAnswers).length;
-  document.getElementById('psycho-status').textContent = `${count} / 12 answered`;
   track('psycho_answered', { question: qid, value: val });
+
+  const mandatory = psychoQuestions.filter(q => q.mandatory);
+  const mandAnswered = mandatory.filter(q => riasecAnswers[q.id]).length;
+  const totalAnswered = Object.keys(riasecAnswers).length;
+  const status = document.getElementById('psycho-status');
+
+  if (optionalShown) {
+    // All 12 visible -- update count and show continue button
+    if (status) status.textContent = `${totalAnswered} / 12 answered`;
+    const cont = document.getElementById('psycho-continue-btn');
+    if (cont) cont.style.display = 'inline-flex';
+  } else {
+    // Only mandatory visible
+    if (status) status.textContent = `${mandAnswered} / 6 answered`;
+    // Show mid-point prompt when all 6 mandatory answered
+    if (mandAnswered === 6) {
+      const mp = document.getElementById('midpoint-prompt');
+      if (mp) {
+        mp.style.display = 'block';
+        mp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      track('mandatory_questions_complete', {});
+    }
+  }
 }
 
 function computeRiasec() {
@@ -1665,9 +1871,9 @@ function computeRiasec() {
   return Object.entries(scores).sort((a,b)=>b[1]-a[1]);
 }
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  EXTRAS
-// ═══════════════════════════════════════════
+// ===========================================
 function toggleCheck(el, id) {
   // Handled by onCheckChange to avoid iOS double-fire bug
 }
@@ -1683,9 +1889,9 @@ function onCheckChange(checkbox, id) {
   }
 }
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  STEP NAVIGATION
-// ═══════════════════════════════════════════
+// ===========================================
 function restoreExtras() {
   // Restore checkbox visual state from state.extras
   state.extras.forEach(id => {
@@ -1731,13 +1937,22 @@ function clearError() {
 function goStep(n) {
   clearError();
 
-  // STEP 1 → 2: must select class
+  // STEP 1 --> 2: must select class
   if (n === 2 && !state.classLevel) {
-    showError('Please select your class — 10th or 12th.');
+    // Shake both cards to draw attention
+    ['class-10','class-12'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.animation = 'none';
+        el.offsetHeight; // reflow
+        el.style.animation = 'shake 0.4s ease';
+      }
+    });
+    showError('Please select your class first -- tap on 10th or 12th above.');
     return;
   }
 
-  // STEP 2 → 3: validate marks and stream
+  // STEP 2 -> 3: validate marks and stream
   if (n === 3) {
     // Collect whatever is filled
     document.querySelectorAll('[id^="mark-"]').forEach(el => {
@@ -1759,12 +1974,23 @@ function goStep(n) {
     }
   }
 
-  // STEP 3 → 4: at least 6 of 12 psychometric questions answered
+  // STEP 3 -> 4: must answer all 6 mandatory questions
   if (n === 4) {
-    const answered = Object.keys(riasecAnswers).length;
-    if (answered < 6) {
-      showError(`Please answer at least 6 interest questions before continuing. You have answered ${answered} of 12.`);
+    const mandatory = psychoQuestions.filter(q => q.mandatory);
+    const mandAnswered = mandatory.filter(q => riasecAnswers[q.id]).length;
+    if (mandAnswered < 6) {
+      showError(`Please answer all 6 interest questions before continuing. You have answered ${mandAnswered} of 6.`);
       return;
+    }
+    // If optional not shown and not skipped via mid-point -- show mid-point prompt instead
+    if (!optionalShown) {
+      const mp = document.getElementById('midpoint-prompt');
+      if (mp && mp.style.display === 'none') {
+        mp.style.display = 'block';
+        mp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        showError('All 6 core questions answered! Choose below -- answer 6 more for better accuracy, or skip to continue.');
+        return;
+      }
     }
   }
 
@@ -1822,9 +2048,9 @@ function goStep(n) {
   track('step_view', { step: n });
 }
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  RESULT GENERATION
-// ═══════════════════════════════════════════
+// ===========================================
 function generateResult() {
   clearError();
 
@@ -1848,6 +2074,9 @@ function generateResult() {
   const riasecRanked = computeRiasec();
   const primary = riasecRanked[0][0];
   const secondary = riasecRanked[1][0];
+  // Track whether optional questions were completed
+  const totalAnswered = Object.keys(riasecAnswers).length;
+  state.partialPsycho = totalAnswered < 12;
 
   // Avg marks - require at least some marks entered
   const markVals = Object.values(state.marks).filter(v => v > 0);
@@ -1859,6 +2088,7 @@ function generateResult() {
 
   // Generate paths
   const paths = generatePaths(primary, secondary, avgMark, state.classLevel, state.stream12, state.extras, state.familyExp, state.finance);
+  generatedPaths = paths; // store for text share
 
   // Render
   renderResult(riasecRanked, paths, avgMark, primary, secondary);
@@ -1870,7 +2100,7 @@ function generateResult() {
   }
   document.getElementById('result-section').style.display = 'block';
 
-  // Progress bar — all done, step 6 active
+  // Progress bar -- all done, step 6 active
   for (let i = 1; i <= 5; i++) {
     const s = document.getElementById(`step-${i}-pill`);
     if (s) { s.classList.remove('active'); s.classList.add('done'); }
@@ -1893,9 +2123,9 @@ function generateResult() {
   }
 }
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  PATH LOGIC ENGINE
-// ═══════════════════════════════════════════
+// ===========================================
 function generatePaths(primary, secondary, avgMark, classLevel, stream12, extras, familyExp, finance) {
   const hasArt = extras.some(e => ['art-music','art-dance','art-visual'].includes(e));
   const hasSport = extras.some(e => ['sport-school','sport-state'].includes(e));
@@ -1913,7 +2143,7 @@ function generatePaths(primary, secondary, avgMark, classLevel, stream12, extras
 function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget) {
   const paths = [];
 
-  // PATH MATRIX — 10th
+  // PATH MATRIX -- 10th
   const allPaths = [
     {
       id: 'science_cs', title: 'Science Group (Physics, Chemistry, Maths + CS)',
@@ -1921,21 +2151,21 @@ function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeade
       riasecFit: ['I','R','E'],
       minMark: 75,
       why: 'Your analytical interest profile and marks in Maths and Science make this a strong fit. The CS sub-subject opens doors to both engineering and software careers without committing immediately.',
-      courses: 'JEE / TNEA / KEAM after 12th → B.Tech, B.E.',
+      courses: 'JEE / TNEA / KEAM after 12th -> B.Tech, B.E.',
       jobs: ['Software Engineer', 'Data Scientist', 'Product Manager', 'Systems Architect'],
-      salary: '₹3–6 LPA starting, ₹10–20 LPA with 5 years experience',
-      hiring: 'AI/Cloud roles up 30–53% YoY. General coding roles under pressure from automation.',
-      risk: 'IT sector saw 23,000+ job cuts in 2025 in traditional roles. Specialize in AI, cloud, or cybersecurity — not just "coding".',
+      salary: '₹3-6 LPA starting, ₹10-20 LPA with 5 years experience',
+      hiring: 'AI/Cloud roles up 30-53% YoY. General coding roles under pressure from automation.',
+      risk: 'IT sector saw 23,000+ job cuts in 2025 in traditional roles. Specialize in AI, cloud, or cybersecurity -- not just "coding".',
     },
     {
       id: 'science_bio', title: 'Science Group (Physics, Chemistry, Biology)',
       subtitle: 'Medicine, Pharmacy & Allied Health track',
       riasecFit: ['I','S','R'],
       minMark: 75,
-      why: 'Biology and Science aptitude points toward healthcare — one of India\'s fastest-growing sectors. Medicine is long but stable; allied health and pharmacy are faster and equally impactful.',
-      courses: 'NEET after 12th → MBBS, BDS, BAMS; or B.Pharm, B.Sc Nursing, BPT',
+      why: 'Biology and Science aptitude points toward healthcare -- one of India\'s fastest-growing sectors. Medicine is long but stable; allied health and pharmacy are faster and equally impactful.',
+      courses: 'NEET after 12th -> MBBS, BDS, BAMS; or B.Pharm, B.Sc Nursing, BPT',
       jobs: ['Doctor', 'Pharmacist', 'Physiotherapist', 'Medical Researcher', 'Healthcare Manager'],
-      salary: '₹2.5–5 LPA starting; ₹12–30 LPA for doctors post-PG',
+      salary: '₹2.5-5 LPA starting; ₹12-30 LPA for doctors post-PG',
       hiring: 'Healthcare hiring up 11% YoY. 12 million new jobs forecast by 2026 across engineering, telecom & health.',
       risk: 'MBBS is a 5.5-year + internship commitment. High competition for NEET seats (21 lakh+ write NEET annually). Allied health is a less crowded, good-quality alternative.',
     },
@@ -1944,34 +2174,34 @@ function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeade
       subtitle: 'Finance, Analytics & Business track',
       riasecFit: ['E','C','I'],
       minMark: 55,
-      why: 'Commerce with Maths keeps multiple doors open — from CA and Finance to business analytics, banking, and management. Ideal if you\'re drawn to business but also analytical.',
+      why: 'Commerce with Maths keeps multiple doors open -- from CA and Finance to business analytics, banking, and management. Ideal if you\'re drawn to business but also analytical.',
       courses: 'CA Foundation / B.Com / BBA / B.Sc Economics after 12th; then MBA or CFA',
       jobs: ['Chartered Accountant', 'Financial Analyst', 'Business Analyst', 'Banker', 'Entrepreneur'],
-      salary: '₹3–5 LPA starting; CA earns ₹7–15 LPA on qualification',
+      salary: '₹3-5 LPA starting; CA earns ₹7-15 LPA on qualification',
       hiring: 'Insurance (+34%), Banking, and BFSI are strong hiring sectors. BFSI added significant roles in 2025.',
-      risk: 'CA has a very low pass rate (~5% at Final level). Plan for 5–6 years if that\'s the goal. BBA + MBA is a faster alternative.',
+      risk: 'CA has a very low pass rate (~5% at Final level). Plan for 5-6 years if that\'s the goal. BBA + MBA is a faster alternative.',
     },
     {
       id: 'arts', title: 'Arts / Humanities / Social Sciences',
       subtitle: 'Law, Journalism, Psychology & Social Impact',
       riasecFit: ['S','A','E'],
       minMark: 40,
-      why: 'Arts opens paths that most students in India underestimate. Law (CLAT), Journalism, Psychology, Design, and Education are real careers with growing demand — not fallbacks.',
+      why: 'Arts opens paths that most students in India underestimate. Law (CLAT), Journalism, Psychology, Design, and Education are real careers with growing demand -- not fallbacks.',
       courses: 'BA + CLAT for Law; BA Mass Comm for Journalism; BA Psychology; BA Design',
       jobs: ['Lawyer', 'Journalist', 'Psychologist', 'UX Designer', 'Civil Services (IAS/IPS)', 'Social Worker'],
-      salary: 'Varies: IAS ₹7th pay scale; Lawyers ₹3–20 LPA based on specialisation',
+      salary: 'Varies: IAS ₹7th pay scale; Lawyers ₹3-20 LPA based on specialisation',
       hiring: 'Advertising & PR +44%, Media & Entertainment +40% in fresher hiring (2025 data).',
       risk: 'Earnings ramp up is slower in early years. Law requires 5-year LLB. UPSC preparation is highly competitive. However, job satisfaction and societal impact are high.',
     },
     {
-      id: 'diploma', title: 'Diploma (Polytechnic) — After 10th',
+      id: 'diploma', title: 'Diploma (Polytechnic) -- After 10th',
       subtitle: 'Fastest route to skilled technical employment',
       riasecFit: ['R','C','E'],
       minMark: 35,
       why: 'A 3-year Polytechnic diploma gets you into technical work by age 18. Government polytechnics are low-cost and qualify you for direct lateral entry into B.E. (2nd year) if you later decide to continue.',
-      courses: 'Govt. Polytechnic → Diploma in Mechanical, Civil, Electronics, Computer Engineering',
+      courses: 'Govt. Polytechnic -> Diploma in Mechanical, Civil, Electronics, Computer Engineering',
       jobs: ['Technician', 'Draughtsman', 'Site Supervisor', 'Junior Engineer', 'ITI Trainer'],
-      salary: '₹1.5–3 LPA starting; supervisory roles ₹4–7 LPA',
+      salary: '₹1.5-3 LPA starting; supervisory roles ₹4-7 LPA',
       hiring: 'Manufacturing, construction, and energy sectors adding significant skilled technical roles. PLI scheme driving demand.',
       risk: 'Lower initial salary ceiling unless you continue to B.E. via lateral entry. Strongly recommended to target government polytechnics for cost-effectiveness.',
     },
@@ -2000,27 +2230,27 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
   if (['pcm','pcmb'].includes(stream)) {
     allPaths.push({
       id: 'btech_ai', title: 'B.Tech / B.E. with AI / CS specialisation',
-      subtitle: 'Engineering — Technology & Software',
+      subtitle: 'Engineering -- Technology & Software',
       riasecFit: ['I','R','E'],
       minMark: 70,
-      why: 'Your Maths and Physics background combined with an analytical profile makes CS/AI engineering the highest-opportunity path in India right now. Specialise in AI, ML, or cloud — not generic CS.',
-      courses: 'JEE Advanced → IITs; JEE Main → NITs/IIITs; State counselling → State colleges; TNEA in Tamil Nadu',
-      collegeTier: avgMark >= 90 ? 'IIT/NIT tier realistic' : avgMark >= 75 ? 'State top college / good private' : 'Self-financing college — choose NAAC A++ only',
+      why: 'Your Maths and Physics background combined with an analytical profile makes CS/AI engineering the highest-opportunity path in India right now. Specialise in AI, ML, or cloud -- not generic CS.',
+      courses: 'JEE Advanced -> IITs; JEE Main -> NITs/IIITs; State counselling -> State colleges; TNEA in Tamil Nadu',
+      collegeTier: avgMark >= 90 ? 'IIT/NIT tier realistic' : avgMark >= 75 ? 'State top college / good private' : 'Self-financing college -- choose NAAC A++ only',
       jobs: ['AI Engineer', 'Data Scientist', 'Cloud Architect', 'Product Manager', 'Cybersecurity Analyst'],
-      salary: '₹4–12 LPA starting (IIT median ₹17 LPA in 2025)',
+      salary: '₹4-12 LPA starting (IIT median ₹17 LPA in 2025)',
       hiring: 'AI/ML roles +53% YoY. Cloud/Cybersecurity +30% est. India IT to reach $300B by FY26.',
-      risk: 'Avoid tier-3 colleges with poor placement records. The degree alone no longer guarantees a job — build projects, GitHub portfolio, and specialise.',
+      risk: 'Avoid tier-3 colleges with poor placement records. The degree alone no longer guarantees a job -- build projects, GitHub portfolio, and specialise.',
     });
     allPaths.push({
       id: 'btech_core', title: 'B.E. in Core Engineering (Mechanical / Civil / Electrical)',
-      subtitle: 'Engineering — Infrastructure & Manufacturing',
+      subtitle: 'Engineering -- Infrastructure & Manufacturing',
       riasecFit: ['R','I','C'],
       minMark: 60,
       why: 'With PLI scheme, infrastructure push, and defence manufacturing expansion, core engineering is seeing a genuine revival in India. Less glamorous than CS, but the jobs are real and growing.',
-      courses: 'JEE / State counselling → B.E. Mechanical, Civil, Electrical, EEE',
+      courses: 'JEE / State counselling -> B.E. Mechanical, Civil, Electrical, EEE',
       collegeTier: 'Government engineering colleges or NIT/IIIT for best ROI',
       jobs: ['Site Engineer', 'Design Engineer', 'Government Engineer (PSU)', 'Manufacturing Lead'],
-      salary: '₹3–5 LPA starting; PSU (BHEL, ONGC) ₹7–12 LPA',
+      salary: '₹3-5 LPA starting; PSU (BHEL, ONGC) ₹7-12 LPA',
       hiring: 'Energy & Utilities +18% YoY. Infrastructure and manufacturing adding roles under PLI.',
       risk: 'Private-sector core engineering salaries are lower than CS for the first 5 years. PSU entrance exams (GATE) require additional preparation.',
     });
@@ -2028,57 +2258,57 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
 
   if (['pcb','pcmb'].includes(stream)) {
     allPaths.push({
-      id: 'medicine', title: 'MBBS / BDS / BAMS — Medicine',
-      subtitle: 'Healthcare — Doctor track',
+      id: 'medicine', title: 'MBBS / BDS / BAMS -- Medicine',
+      subtitle: 'Healthcare -- Doctor track',
       riasecFit: ['I','S','R'],
       minMark: 80,
       why: 'Healthcare is one of India\'s fastest-growing and most recession-proof sectors. Medicine is a long commitment, but job security, social respect, and earnings are among the highest.',
-      courses: 'NEET → MBBS (5.5 years) / BDS (5 years) / BAMS (Ayurveda)',
-      collegeTier: avgMark >= 90 ? 'Government medical college realistic' : 'Private medical college — fees ₹50L–1Cr. Explore management quota carefully.',
+      courses: 'NEET -> MBBS (5.5 years) / BDS (5 years) / BAMS (Ayurveda)',
+      collegeTier: avgMark >= 90 ? 'Government medical college realistic' : 'Private medical college -- fees ₹50L-1Cr. Explore management quota carefully.',
       jobs: ['General Physician', 'Specialist Doctor', 'Medical Researcher', 'Public Health Officer'],
-      salary: '₹5–8 LPA (Junior Resident); ₹15–40 LPA after PG specialisation',
-      hiring: 'Healthcare sector up 11% YoY hiring. India has 1 doctor per 1,700 people — still a large gap.',
+      salary: '₹5-8 LPA (Junior Resident); ₹15-40 LPA after PG specialisation',
+      hiring: 'Healthcare sector up 11% YoY hiring. India has 1 doctor per 1,700 people -- still a large gap.',
       risk: 'NEET is extremely competitive. Private college fees are very high. Consider allied health (BPT, B.Pharm, B.Sc Nursing) as strong alternatives with faster returns.',
     });
     allPaths.push({
       id: 'allied_health', title: 'Allied Health Sciences (BPT / B.Pharm / Nutrition / Nursing)',
-      subtitle: 'Healthcare — Faster, accessible entry',
+      subtitle: 'Healthcare -- Faster, accessible entry',
       riasecFit: ['S','I','R'],
       minMark: 55,
       why: 'India\'s healthcare system needs allied health professionals far more urgently than doctors. BPT, B.Pharm, or B.Sc Nutrition are 4-year programmes with real, growing job markets.',
-      courses: 'BPT (Physiotherapy), B.Pharm, BSc Nursing, BSc Nutrition/Dietetics — through state counselling',
+      courses: 'BPT (Physiotherapy), B.Pharm, BSc Nursing, BSc Nutrition/Dietetics -- through state counselling',
       collegeTier: 'Government / aided colleges preferred. Fees much lower than MBBS.',
       jobs: ['Physiotherapist', 'Pharmacist', 'Dietitian', 'Nurse', 'Hospital Manager (with PG)'],
-      salary: '₹2.5–4.5 LPA starting; with specialisation ₹6–10 LPA',
+      salary: '₹2.5-4.5 LPA starting; with specialisation ₹6-10 LPA',
       hiring: 'Healthcare hiring strong. Hospitals, corporates (wellness programs), and telemedicine all expanding.',
-      risk: 'Awareness about these careers is low — family and peers may not understand. Salary growth requires post-graduation. But job availability is real and growing.',
+      risk: 'Awareness about these careers is low -- family and peers may not understand. Salary growth requires post-graduation. But job availability is real and growing.',
     });
   }
 
   if (['commerce','commerce_maths'].includes(stream)) {
     allPaths.push({
-      id: 'ca_finance', title: 'CA / CMA / CFA — Chartered Accountancy',
-      subtitle: 'Finance — Highest credential in Indian Commerce',
+      id: 'ca_finance', title: 'CA / CMA / CFA -- Chartered Accountancy',
+      subtitle: 'Finance -- Highest credential in Indian Commerce',
       riasecFit: ['C','E','I'],
       minMark: 65,
       why: 'CA is the gold standard in Indian finance and business. Combined with Maths in 12th, you can also enter analytics and fintech alongside traditional accounting.',
-      courses: 'ICAI CA Foundation → Intermediate → Final (3 levels, ~5 years total); B.Com can run parallel',
-      collegeTier: 'CA is a professional qualification — college choice matters less. Enroll in ICAI.',
+      courses: 'ICAI CA Foundation -> Intermediate -> Final (3 levels, ~5 years total); B.Com can run parallel',
+      collegeTier: 'CA is a professional qualification -- college choice matters less. Enroll in ICAI.',
       jobs: ['Chartered Accountant', 'CFO', 'Tax Consultant', 'Auditor', 'Financial Controller'],
-      salary: '₹6–10 LPA on first job as CA; Big 4 firms ₹7–12 LPA starting',
+      salary: '₹6-10 LPA on first job as CA; Big 4 firms ₹7-12 LPA starting',
       hiring: 'BFSI sector strong. Insurance +34%, Banking steady. Every company needs CA/finance professionals.',
       risk: 'CA has one of India\'s toughest pass rates. Requires consistent discipline for 5+ years. Dropout risk is high without a study plan. BBA + MBA is a valid alternative for business-oriented students.',
     });
     allPaths.push({
-      id: 'bba_mba', title: 'BBA → MBA — Business & Management',
-      subtitle: 'Management — Generalist to Specialist track',
+      id: 'bba_mba', title: 'BBA -> MBA -- Business & Management',
+      subtitle: 'Management -- Generalist to Specialist track',
       riasecFit: ['E','S','C'],
       minMark: 50,
       why: 'BBA is an underrated degree in India. With the right MBA (IIM/XLRI/NMIMS), the career ceiling is very high. This path suits students who like people, business, and variety.',
-      courses: 'BBA from good university → CAT/XAT for IIM/XLRI; or B.Com + MBA',
+      courses: 'BBA from good university -> CAT/XAT for IIM/XLRI; or B.Com + MBA',
       collegeTier: 'Top BBA colleges: Christ (Bengaluru), NMIMS, Symbiosis, Loyola (Chennai)',
       jobs: ['Marketing Manager', 'Startup Founder', 'HR Leader', 'Operations Head', 'Consultant'],
-      salary: '₹3–5 LPA post-BBA; ₹8–25 LPA post-IIM/top MBA',
+      salary: '₹3-5 LPA post-BBA; ₹8-25 LPA post-IIM/top MBA',
       hiring: 'Consulting, e-commerce, and fintech are active hiring. MBA from top school dramatically improves options.',
       risk: 'BBA from an unknown college has limited value without a strong MBA to follow. IPMAT (IIM Indore/Rohtak) is competitive but worth attempting if Commerce marks are strong.',
     });
@@ -2086,67 +2316,67 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
 
   if (stream === 'arts') {
     allPaths.push({
-      id: 'law', title: 'BA LLB / BBA LLB — Law',
-      subtitle: 'Legal — 5-year integrated programme',
+      id: 'law', title: 'BA LLB / BBA LLB -- Law',
+      subtitle: 'Legal -- 5-year integrated programme',
       riasecFit: ['S','E','I'],
       minMark: 55,
-      why: 'India\'s legal market is growing. Corporate law, IP law, and technology law are high-demand niches. CLAT gives you access to NLUs — some of India\'s best career outcomes.',
-      courses: 'CLAT → National Law Universities (NLUs) — BA LLB or BBA LLB (5 years)',
+      why: 'India\'s legal market is growing. Corporate law, IP law, and technology law are high-demand niches. CLAT gives you access to NLUs -- some of India\'s best career outcomes.',
+      courses: 'CLAT -> National Law Universities (NLUs) -- BA LLB or BBA LLB (5 years)',
       collegeTier: avgMark >= 80 ? 'Top NLU (NLSIU Bengaluru, NLU Delhi) realistic' : 'Mid-tier NLU or state law college',
       jobs: ['Corporate Lawyer', 'Public Prosecutor', 'Legal Consultant', 'Judge', 'Policy Analyst'],
-      salary: '₹4–8 LPA starting at law firm; corporate counsel ₹15–40 LPA with experience',
+      salary: '₹4-8 LPA starting at law firm; corporate counsel ₹15-40 LPA with experience',
       hiring: 'Legal tech and corporate law growing. GCCs and tech companies need legal talent. Judiciary exam route has steady demand.',
-      risk: 'Litigation income is irregular in early years. Good NLU placement requires CLAT preparation of 12–18 months. Private law college without NLU tag has weaker placement.',
+      risk: 'Litigation income is irregular in early years. Good NLU placement requires CLAT preparation of 12-18 months. Private law college without NLU tag has weaker placement.',
     });
     allPaths.push({
       id: 'journalism_design', title: 'Mass Communication / Design / UX',
-      subtitle: 'Creative — Media, Content & Digital Design',
+      subtitle: 'Creative -- Media, Content & Digital Design',
       riasecFit: ['A','S','E'],
       minMark: 45,
       why: 'India\'s digital content, OTT, and media sectors are exploding. Advertising & PR hiring grew 44% YoY. A creative-analytical combination is rare and valuable.',
       courses: 'BMM / BA Mass Comm; BDes (NID, Srishti); B.Sc Animation / UX Design',
       collegeTier: 'NID and Srishti are premier. Xavier\'s (Mumbai), Manipal, Symbiosis for Mass Comm.',
       jobs: ['UX Designer', 'Content Strategist', 'Journalist', 'Brand Manager', 'Social Media Lead'],
-      salary: '₹2.5–4 LPA starting; senior designers ₹12–25 LPA at tech companies',
+      salary: '₹2.5-4 LPA starting; senior designers ₹12-25 LPA at tech companies',
       hiring: 'Media & Entertainment fresher hiring +40% YoY (2025). Digital content demand still growing.',
       risk: 'Income is variable in early years, especially for freelance content work. UX design has the strongest job market in this cluster. Build a portfolio before you graduate.',
     });
     allPaths.push({
       id: 'civil_services', title: 'BA + UPSC Civil Services Preparation',
-      subtitle: 'Government — IAS / IPS / IFS',
+      subtitle: 'Government -- IAS / IPS / IFS',
       riasecFit: ['E','S','I'],
       minMark: 50,
       why: 'If you have breadth of knowledge, communication skills, and discipline, UPSC is a legitimate and high-impact path. Arts background is actually advantageous for GS papers.',
-      courses: 'BA (History / Political Science / Economics) + 2–3 years dedicated UPSC preparation',
-      collegeTier: 'Delhi University, Loyola, Presidency — or any good government college for BA',
+      courses: 'BA (History / Political Science / Economics) + 2-3 years dedicated UPSC preparation',
+      collegeTier: 'Delhi University, Loyola, Presidency -- or any good government college for BA',
       jobs: ['IAS Officer', 'IPS Officer', 'Foreign Service Officer', 'State PSC roles'],
       salary: '7th Pay Commission: starting ₹56,100/month + perks. Social impact is extremely high.',
       hiring: 'Steady. UPSC releases approximately 1,000 seats/year across all services.',
-      risk: 'Extremely competitive. Average successful candidate attempts 2–3 times. Financial planning for the gap years is essential. State PSC (TNPSC, KPSC) is a less competitive alternative.',
+      risk: 'Extremely competitive. Average successful candidate attempts 2-3 times. Financial planning for the gap years is essential. State PSC (TNPSC, KPSC) is a less competitive alternative.',
     });
   }
 
   // Fallback: if stream not matched, add generic paths
   if (allPaths.length === 0) {
     allPaths.push(
-      { id:'btech_ai', title:'B.Tech / B.E. with CS / AI', subtitle:'Engineering — Technology', riasecFit:['I','R','E'], minMark:65,
+      { id:'btech_ai', title:'B.Tech / B.E. with CS / AI', subtitle:'Engineering -- Technology', riasecFit:['I','R','E'], minMark:65,
         why:'A versatile engineering degree that suits analytical students. AI and cloud specialisations have the highest job demand in India right now.',
-        courses:'JEE Main / State counselling → B.Tech CS, IT, or AI', collegeTier:'Government or NAAC A++ college recommended',
+        courses:'JEE Main / State counselling -> B.Tech CS, IT, or AI', collegeTier:'Government or NAAC A++ college recommended',
         jobs:['Software Engineer','Data Analyst','Product Manager','Cloud Engineer'],
-        salary:'₹4–10 LPA starting', hiring:'AI/ML roles +53% YoY. IT industry revenues to cross 00B by FY26.',
-        risk:'Specialize — a generic CS degree without skills no longer guarantees placement.' },
-      { id:'bba_mba', title:'BBA + MBA — Business and Management', subtitle:'Management — People and Business', riasecFit:['E','S','C'], minMark:50,
+        salary:'₹4-10 LPA starting', hiring:'AI/ML roles +53% YoY. IT industry revenues to cross 00B by FY26.',
+        risk:'Specialize -- a generic CS degree without skills no longer guarantees placement.' },
+      { id:'bba_mba', title:'BBA + MBA -- Business and Management', subtitle:'Management -- People and Business', riasecFit:['E','S','C'], minMark:50,
         why:'Suits students who enjoy people, business ideas, and varied work. Strong MBA (IIM/XLRI) dramatically raises the ceiling.',
         courses:'BBA then CAT/XAT for top MBA; or B.Com + MBA', collegeTier:'Christ, NMIMS, Symbiosis for BBA',
         jobs:['Marketing Manager','Business Analyst','HR Leader','Consultant','Entrepreneur'],
-        salary:'₹3–5 LPA post-BBA; ₹8–25 LPA post-top-MBA', hiring:'Consulting, BFSI, and e-commerce active hiring.',
+        salary:'₹3-5 LPA post-BBA; ₹8-25 LPA post-top-MBA', hiring:'Consulting, BFSI, and e-commerce active hiring.',
         risk:'BBA without a strong MBA has limited ceiling. Plan for CAT from Year 1.' },
-      { id:'law', title:'BA LLB — Law', subtitle:'Legal and Policy', riasecFit:['S','E','I'], minMark:50,
+      { id:'law', title:'BA LLB -- Law', subtitle:'Legal and Policy', riasecFit:['S','E','I'], minMark:50,
         why:"India's legal market is growing, especially in corporate law, IP, and tech law. CLAT opens NLU doors.",
         courses:'CLAT then NLU (5-year BA LLB / BBA LLB)', collegeTier:'Top NLU if marks strong; state law college otherwise',
         jobs:['Corporate Lawyer','Legal Consultant','Policy Analyst','Judge','Legal Tech Specialist'],
-        salary:'₹4–8 LPA starting at firm; ₹15–40 LPA senior corporate', hiring:'GCCs and tech firms growing legal teams.',
-        risk:'Litigation income irregular early on. Good NLU requires 12–18 months CLAT prep.' }
+        salary:'₹4-8 LPA starting at firm; ₹15-40 LPA senior corporate', hiring:'GCCs and tech firms growing legal teams.',
+        risk:'Litigation income irregular early on. Good NLU requires 12-18 months CLAT prep.' }
     );
   }
 
@@ -2162,9 +2392,9 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
   return scored.sort((a,b) => b.score - a.score).slice(0, 3);
 }
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  RENDER RESULT
-// ═══════════════════════════════════════════
+// ===========================================
 const riasecNames = { R:'Realistic', I:'Investigative', A:'Artistic', S:'Social', E:'Enterprising', C:'Conventional' };
 const riasecDesc = {
   R:'Hands-on, practical, builds & fixes things',
@@ -2177,9 +2407,13 @@ const riasecDesc = {
 
 function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
   const classLabel = state.classLevel === 10 ? 'Class 10 (SSC/SSLC)' : 'Class 12 (HSC/PUC)';
-  document.getElementById('result-title').textContent = `Your Career Paths — After ${classLabel}`;
+  document.getElementById('result-title').textContent = `Your Career Paths -- After ${classLabel}`;
   document.getElementById('result-profile').textContent =
-    `Average marks ~${avgMark}% · ${riasecNames[primary]} + ${riasecNames[secondary]} interest profile · ${riasecDesc[primary]}`;
+    `Average marks ~${avgMark}% . ${riasecNames[primary]} + ${riasecNames[secondary]} interest profile . ${riasecDesc[primary]}`;
+
+  // Show partial psycho note if only 6 answered
+  const partialNote = document.getElementById('partial-psycho-note');
+  if (partialNote && state.partialPsycho) partialNote.style.display = 'block';
 
   // RIASEC bar
   const bar = document.getElementById('riasec-bar');
@@ -2188,7 +2422,7 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
   ).join('');
 
   // Paths
-  const rankLabels = ['Best Fit ★', '2nd Choice', '3rd Choice'];
+  const rankLabels = ['Best Fit *', '2nd Choice', '3rd Choice'];
   const rankClasses = ['rank-1','rank-2','rank-3'];
   document.getElementById('paths-output').innerHTML = paths.map((p,i) => `
     <div class="path-card fade-in" style="animation-delay:${i*0.1}s">
@@ -2203,7 +2437,7 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
         <div class="meta-item"><div class="meta-label">Job Market Signal</div><div class="meta-value" style="font-size:12px;font-weight:400;color:var(--sage)">${p.hiring}</div></div>
       </div>
       <div class="jobs-chips">${p.jobs.map(j=>`<span class="job-chip">${j}</span>`).join('')}</div>
-      <div class="path-risk"><strong>⚠ Honest note:</strong> ${p.risk}</div>
+      <div class="path-risk"><strong>(!) Honest note:</strong> ${p.risk}</div>
     </div>
   `).join('');
 
@@ -2211,28 +2445,28 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
   const p1 = paths[0];
   document.getElementById('parent-summary').innerHTML =
     `Your child's marks (average ~${avgMark}%) and interest profile suggest that <strong>${p1.title}</strong> is the strongest starting point. 
-    This path is chosen because their interest profile — ${riasecNames[primary]} and ${riasecNames[secondary]} — aligns well with what this field demands. 
+    This path is chosen because their interest profile -- ${riasecNames[primary]} and ${riasecNames[secondary]} -- aligns well with what this field demands. 
     The entry route is through <em>${p1.courses}</em>. 
     In terms of job market, ${p1.hiring.toLowerCase()} 
-    We have also provided two alternative paths that are equally valid — a good counsellor or teacher can help compare all three based on your family\'s priorities and budget.`;
+    We have also provided two alternative paths that are equally valid -- a good counsellor or teacher can help compare all three based on your family\'s priorities and budget.`;
 
-  // WhatsApp share — personalised with top path
+  // WhatsApp share -- personalised with top path
   const topPathTitle = paths[0] ? paths[0].title : 'my career path';
-  const shareMsg = `I tried PathFinder India and my top career path is: ${topPathTitle}. Free tool for students finishing 10th & 12th — based on marks, interests & real job market data. Try it here: https://jaganmohankb-git.github.io/pathfinder/`;
+  const shareMsg = `I tried PathFinder India and my top career path is: ${topPathTitle}. Free tool for students finishing 10th & 12th -- based on marks, interests & real job market data. Try it here: https://jaganmohankb-git.github.io/pathfinder/`;
   document.getElementById('whatsapp-share').href = `https://wa.me/?text=${encodeURIComponent(shareMsg)}`;
 }
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  PRINT / SAVE PDF
-// ═══════════════════════════════════════════
+// ===========================================
 function printResult() {
   track('print_result', { class: state.classLevel });
   window.print();
 }
 
-// ═══════════════════════════════════════════
+// ===========================================
 //  FEEDBACK
-// ═══════════════════════════════════════════
+// ===========================================
 let feedbackGiven = false;
 
 function submitFeedback(type) {
@@ -2252,13 +2486,13 @@ function submitFeedback(type) {
   });
 
   if (type === 'up') {
-    // Thumbs up — show thank you straight away
+    // Thumbs up -- show thank you straight away
     feedbackGiven = true;
     document.getElementById('fb-main').style.display = 'none';
     const ty = document.getElementById('fb-thankyou');
     ty.classList.add('visible');
   } else {
-    // Thumbs down — show text box for more detail
+    // Thumbs down -- show text box for more detail
     const followup = document.getElementById('fb-followup');
     followup.classList.add('visible');
     followup.querySelector('textarea').focus();
@@ -2282,6 +2516,71 @@ function submitFeedbackText() {
   document.getElementById('fb-main').style.display = 'none';
   const ty = document.getElementById('fb-thankyou');
   ty.classList.add('visible');
+}
+
+// ===========================================
+//  TEXT REPORT COPY
+// ===========================================
+let generatedPaths = []; // store paths after result for text share
+
+function copyTextReport() {
+  if (!generatedPaths.length) return;
+
+  const classLabel = state.classLevel === 10 ? 'Class 10' : 'Class 12';
+  const lines = [
+    `🧭 PathFinder India -- Career Report`,
+    `-----------------------------`,
+    `Student: ${classLabel} | ${new Date().toLocaleDateString('en-IN')}`,
+    ``,
+  ];
+
+  generatedPaths.forEach((p, i) => {
+    const rank = ['🥇 Best Fit', '🥈 2nd Choice', '🥉 3rd Choice'][i];
+    lines.push(`${rank}: ${p.title}`);
+    lines.push(`   ${p.subtitle}`);
+    lines.push(`   Entry: ${p.courses}`);
+    lines.push(`   Salary: ${p.salary}`);
+    lines.push(`   Job market: ${p.hiring}`);
+    lines.push(`   (!) ${p.risk}`);
+    lines.push(``);
+  });
+
+  lines.push(`-----------------------------`);
+  lines.push(`Generated free at: https://jaganmohankb-git.github.io/pathfinder/`);
+  lines.push(`No login . No fees . All Indian boards`);
+
+  const text = lines.join('\n');
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showCopyConfirm();
+    }).catch(() => {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+
+  track('text_report_copied', { class: state.classLevel });
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); showCopyConfirm(); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+function showCopyConfirm() {
+  const confirm = document.getElementById('copy-confirm');
+  if (confirm) {
+    confirm.style.display = 'block';
+    setTimeout(() => { confirm.style.display = 'none'; }, 3000);
+  }
 }
 
 function restartTool() {
