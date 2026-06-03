@@ -2387,7 +2387,10 @@ const marks12subjects = {
     { id: 'lang', label: 'Language / Literature' }, { id: 'optional', label: 'Optional Subject' },
   ],
   vocational: [
-    { id: 'overall', label: 'Overall %' }, { id: 'english', label: 'English' },
+    { id: 'overall', label: 'Overall / Aggregate %' },
+    { id: 'voc_theory', label: 'Vocational Theory Subject' },
+    { id: 'voc_practical', label: 'Vocational Practical / Trade' },
+    { id: 'english', label: 'English' },
   ],
 };
 
@@ -2749,10 +2752,18 @@ function goStep(n) {
       return;
     }
 
-    // At least 3 subjects must have marks entered
+    // Validate marks -- threshold based on stream's actual subject count
     const filled = Object.values(state.marks).filter(v => v > 0).length;
-    if (filled < 3) {
-      showError('Please select marks for at least 3 subjects by tapping the score buttons above.');
+    const subjectList = state.classLevel === 10
+      ? marks10
+      : (marks12subjects[state.stream12] || []);
+    const totalSubjects = subjectList.length;
+    const minRequired = Math.min(3, totalSubjects); // require all if fewer than 3
+    if (filled < minRequired) {
+      const msg = totalSubjects <= 2
+        ? `Please select marks for all ${totalSubjects} subjects above.`
+        : `Please select marks for at least ${minRequired} subjects by tapping the score buttons above.`;
+      showError(msg);
       return;
     }
   }
