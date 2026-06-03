@@ -1147,6 +1147,53 @@
     line-height: 1.6;
   }
 
+  /* ── VERIFICATION PORTALS ── */
+  .verify-box {
+    background: rgba(21,101,192,0.04);
+    border: 1px solid rgba(21,101,192,0.15);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .verify-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--sky);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .verify-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .verify-link {
+    padding: 5px 12px;
+    background: white;
+    border: 1px solid rgba(21,101,192,0.2);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sky);
+    text-decoration: none;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .verify-link:hover {
+    background: var(--sky);
+    color: white;
+  }
+  .verify-note {
+    font-size: 11px;
+    color: var(--mid);
+    line-height: 1.55;
+    font-style: italic;
+  }
+  @media print { .verify-box { break-inside: avoid; } }
+
   /* ── FEEDBACK WIDGET ── */
   .feedback-box {
     margin-top: 24px;
@@ -1827,6 +1874,21 @@
       <div id="paths-output"></div>
 
       <!-- Parent summary -->
+      <!-- VERIFICATION PORTALS -->
+      <div class="verify-box">
+        <div class="verify-label">Verify cutoffs at official portals</div>
+        <div class="verify-links">
+          <a href="https://www.nirfindia.org" target="_blank" class="verify-link">NIRF Rankings</a>
+          <a href="https://tneaonline.org" target="_blank" class="verify-link">TNEA (Tamil Nadu)</a>
+          <a href="https://cetonline.karnataka.gov.in" target="_blank" class="verify-link">KCET (Karnataka)</a>
+          <a href="https://cee.kerala.gov.in" target="_blank" class="verify-link">KEAM (Kerala)</a>
+          <a href="https://josaa.nic.in" target="_blank" class="verify-link">JoSAA (JEE)</a>
+          <a href="https://mcc.nic.in" target="_blank" class="verify-link">MCC (NEET)</a>
+          <a href="https://clat.ac.in" target="_blank" class="verify-link">CLAT (Law)</a>
+        </div>
+        <div class="verify-note">College suggestions in this report are indicative and based on general tier — not official cutoff data. Actual cutoffs vary by year, category, and board. Always confirm before applying.</div>
+      </div>
+
       <div class="parent-box">
         <div class="parent-label">For Parents</div>
         <div class="parent-text" id="parent-summary"></div>
@@ -2767,6 +2829,139 @@ function goStep(n) {
 // ===========================================
 //  RESULT GENERATION
 // ===========================================
+// Relaxed scoring -- no hard exclusions, just penalties
+function generatePathsRelaxed(primary, secondary, avgMark, classLevel, stream12, extras, familyExp, finance, userState) {
+  const hasArt = extras.some(e => ['art-music','art-dance','art-visual'].includes(e));
+  const hasSport = extras.some(e => ['sport-school','sport-state'].includes(e));
+  const hasLeadership = extras.some(e => ['community-lead','community-event','community-social'].includes(e));
+  const hasNCC = extras.includes('sport-ncc');
+  const isLowBudget = finance === 'low';
+  // Same as generatePaths but without hard exclusion
+  if (classLevel === 10) {
+    return generatePaths10Relaxed(primary, secondary, avgMark, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState);
+  } else {
+    return generatePaths12Relaxed(primary, secondary, avgMark, stream12, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState);
+  }
+}
+
+function generatePaths10Relaxed(primary, secondary, avgMark, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState) {
+  // Same paths as generatePaths10 but score without hard exclusion
+  const paths = [];
+  const allPaths = [
+    { id:'diploma', title:'Diploma (Polytechnic)', subtitle:'Fastest route to skilled technical employment',
+      riasecFit:['R','C','E'], minMark:35,
+      why:'A 3-year Polytechnic diploma gets you into technical work by age 18. Low cost, practical, and qualifies for lateral entry into B.E. later.',
+      courses:'Govt. Polytechnic -> Diploma in Mechanical, Civil, Electronics, Computer Engineering',
+      jobs:['Technician','Junior Engineer','Site Supervisor','ITI Trainer'],
+      salary:'Rs 1.5-3 LPA starting; supervisory Rs 4-7 LPA',
+      hiring:'Manufacturing and construction adding skilled technical roles under PLI scheme.',
+      risk:'Lower initial salary ceiling unless you continue to B.E. via lateral entry.' },
+    { id:'commerce_maths', title:'Commerce with Mathematics', subtitle:'Finance, Analytics & Business',
+      riasecFit:['E','C','I'], minMark:40,
+      why:'Commerce keeps multiple doors open including CA, Finance, Business Analytics, and Banking.',
+      courses:'CA Foundation / B.Com / BBA after 12th',
+      jobs:['Accountant','Business Analyst','Banker','Entrepreneur'],
+      salary:'Rs 3-5 LPA starting',
+      hiring:'BFSI sector strong. Insurance +34%, Banking steady.',
+      risk:'CA has a very low pass rate. Plan for 5-6 years if that is the goal.' },
+    { id:'arts', title:'Arts / Humanities', subtitle:'Law, Journalism, Psychology & Social Impact',
+      riasecFit:['S','A','E'], minMark:35,
+      why:'Arts opens paths in Law, Design, Teaching, Civil Services that most students underestimate.',
+      courses:'BA + CLAT for Law; BA Mass Comm; BA Psychology; Civil Services preparation',
+      jobs:['Lawyer','Journalist','Teacher','Civil Services','Social Worker'],
+      salary:'Varies widely by specialisation',
+      hiring:'Advertising & PR +44%, Media & Entertainment +40% in fresher hiring.',
+      risk:'Earnings ramp up slower in early years for most arts careers.' },
+  ];
+  allPaths.forEach(p => {
+    let score = 0;
+    if (p.riasecFit.includes(primary)) score += 40;
+    if (p.riasecFit.includes(secondary)) score += 20;
+    if (avgMark >= p.minMark) score += 25; else score -= 10;
+    p.colleges = getColleges(p.id, userState, avgMark);
+    paths.push({ ...p, score });
+  });
+  return paths.sort((a,b) => b.score - a.score).slice(0, 3);
+}
+
+function generatePaths12Relaxed(primary, secondary, avgMark, stream12, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState) {
+  // Generic low-mark paths for 12th students -- no hard exclusions
+  const paths = [];
+  const lowPaths = [
+    { id:'allied_health', title:'Allied Health Sciences (BPT / B.Pharm / Nursing)',
+      subtitle:'Healthcare -- Faster, accessible entry', riasecFit:['S','I','R'], minMark:45,
+      why:'Allied Health needs far less NEET score than MBBS and has real growing job markets. BPT, B.Pharm, and Nursing are practical choices.',
+      courses:'BPT, B.Pharm, BSc Nursing through state counselling',
+      jobs:['Physiotherapist','Pharmacist','Nurse','Healthcare Manager'],
+      salary:'Rs 2.5-4.5 LPA starting',
+      hiring:'Healthcare hiring strong. Corporate wellness and telemedicine expanding.',
+      risk:'Awareness is low. Salary growth requires post-graduation.' },
+    { id:'bba_mba', title:'BBA / B.Com + MBA Path', subtitle:'Management -- People & Business',
+      riasecFit:['E','S','C'], minMark:45,
+      why:'BBA or B.Com from a good college followed by MBA is a strong path. College marks matter less than entrance scores for MBA.',
+      courses:'BBA or B.Com from state college -> CAT/XAT for IIM/top MBA',
+      jobs:['Marketing Manager','Business Analyst','Entrepreneur','HR Leader'],
+      salary:'Rs 3-5 LPA post-BBA; Rs 8-25 LPA post-top-MBA',
+      hiring:'Consulting, e-commerce, and BFSI active hiring.',
+      risk:'BBA from unknown college has limited value without strong MBA to follow.' },
+    { id:'diploma', title:'Diploma / Vocational Course', subtitle:'Skill-based -- Fastest employment route',
+      riasecFit:['R','C','E'], minMark:35,
+      why:'Vocational and diploma courses provide employment-ready skills in 1-2 years. Government ITI and polytechnic courses are low cost and have real placement.',
+      courses:'ITI / Polytechnic / Government vocational courses',
+      jobs:['Technician','Skilled Worker','Junior Engineer','Self-employment'],
+      salary:'Rs 1.5-3 LPA starting with scope to grow',
+      hiring:'Skilled trades in high demand under Make in India and PLI schemes.',
+      risk:'Ceiling is lower without further education. Plan to upskill.' },
+  ];
+  lowPaths.forEach(p => {
+    let score = 0;
+    if (p.riasecFit.includes(primary)) score += 40;
+    if (p.riasecFit.includes(secondary)) score += 20;
+    score += 20; // all these are accessible -- no mark penalty
+    p.colleges = getColleges(p.id, userState, avgMark);
+    paths.push({ ...p, score });
+  });
+  return paths.sort((a,b) => b.score - a.score).slice(0, 3);
+}
+
+function getGenericLowMarkPaths(classLevel) {
+  // Absolute fallback -- always returns something meaningful
+  return [
+    { id:'diploma', title:'Diploma / Vocational Route',
+      subtitle:'Skill-based -- Most accessible path',
+      why:'Government polytechnic and ITI courses are the most accessible and affordable route to stable employment. No high marks required.',
+      courses: classLevel === 10
+        ? 'Government Polytechnic (DOTE) -> 3-year Diploma -> lateral entry to B.E.'
+        : 'ITI / Government Vocational courses -> skilled employment',
+      jobs:['Technician','Skilled Worker','Junior Engineer'],
+      salary:'Rs 1.5-3 LPA starting',
+      hiring:'Skilled trades in high demand under PLI and Make in India.',
+      risk:'Plan to upskill continuously. Lateral entry to degree is possible after diploma.',
+      colleges:['Government Polytechnic (nearest)', 'ITI (state-run)'],
+      score: 50 },
+    { id:'bba_mba', title:'Commerce / Business Route',
+      subtitle:'Management -- Open to all mark bands',
+      why:'B.Com or BBA from a government or aided college is open to all mark bands. The MBA route later dramatically changes career trajectory.',
+      courses:'B.Com / BBA from government college -> MBA via CAT later',
+      jobs:['Accountant','Business Executive','Entrepreneur'],
+      salary:'Rs 2-4 LPA starting; higher with MBA',
+      hiring:'BFSI and services sectors always hire commerce graduates.',
+      risk:'First few years income is modest. MBA is the real multiplier.',
+      colleges:['Government Arts & Science College (nearest)', 'State university B.Com'],
+      score: 40 },
+    { id:'arts', title:'Arts / Humanities Route',
+      subtitle:'Broad -- Civil Services, Teaching, Social sector',
+      why:'BA from a government college is open to all mark bands and prepares for Civil Services, teaching, journalism, and social sector work.',
+      courses:'BA from government college -> TNPSC/UPSC/State PSC preparation',
+      jobs:['Government Employee','Teacher','Journalist','Social Worker'],
+      salary:'Government scale after exam; teaching Rs 3-6 LPA',
+      hiring:'Government jobs steady. Teaching demand growing.',
+      risk:'Requires dedicated competitive exam preparation alongside degree.',
+      colleges:['Government Arts College (nearest)', 'State university BA'],
+      score: 30 },
+  ];
+}
+
 function generateResult() {
   clearError();
 
@@ -2801,7 +2996,18 @@ function generateResult() {
   const avgMark = Math.round(markVals.reduce((a,b)=>a+b,0)/markVals.length);
 
   // Generate paths
-  const paths = generatePaths(primary, secondary, avgMark, state.classLevel, state.stream12, state.extras, state.familyExp, state.finance, state.userState || '');
+  let paths = generatePaths(primary, secondary, avgMark, state.classLevel, state.stream12, state.extras, state.familyExp, state.finance, state.userState || '');
+
+  // Safety net: if scoring excluded everything, relax thresholds and retry
+  if (!paths || paths.length === 0) {
+    paths = generatePathsRelaxed(primary, secondary, avgMark, state.classLevel, state.stream12, state.extras, state.familyExp, state.finance, state.userState || '');
+  }
+
+  // Final fallback: if still empty, show generic low-mark paths
+  if (!paths || paths.length === 0) {
+    paths = getGenericLowMarkPaths(state.classLevel);
+  }
+
   generatedPaths = paths; // store for text share
 
   // Render
@@ -2872,62 +3078,234 @@ function getMedExams(s) {
   return quota[s] || base + ' -- 85% state quota in govt medical colleges';
 }
 
-function getColleges(pathId, s) {
-  const c = {
+function getColleges(pathId, s, avgMark) {
+  // NIRF 2024 based college suggestions
+  // Source: Ministry of Education NIRF Rankings 2024 (nirfindia.org)
+  // Three tiers per path based on marks:
+  //   Tier 1 (95%+): NIRF rank 1-10 institutions
+  //   Tier 2 (75-94%): NIRF rank 11-50 + top state colleges
+  //   Tier 3 (60-74%): NIRF rank 51-100 + good state colleges
+  //   Tier 4 (<60%): Government aided + accessible colleges only
+
+  const nirf = {
+
     btech_ai: {
-      TN:['IIT Madras','NIT Trichy','Anna University CEG','PSG Tech Coimbatore','Amrita Coimbatore'],
-      KA:['IISc Bengaluru','NIT Surathkal','RV College','PES University','BMS College'],
-      KL:['IIT Palakkad','NIT Calicut','College of Engg Trivandrum','Model Engg College'],
-      AP:['IIT Tirupati','NIT Warangal','JNTU Hyderabad','VIT Vellore'],
-      TS:['IIT Hyderabad','NIT Warangal','BITS Pilani Hyderabad','IIIT Hyderabad'],
-      MH:['IIT Bombay','VJTI Mumbai','COEP Pune','NIT Nagpur'],
-      DL:['IIT Delhi','DTU Delhi','NSIT Delhi','IIIT Delhi'],
-      DEFAULT:['IIT (nearest)','NIT (state)','IIIT (state)','Top state govt engg college','NAAC A++ private college'],
+      t1: { // NIRF Engg rank 1-10 -- requires 95%+ and JEE Advanced
+        ALL: ['IIT Madras (NIRF #1)', 'IIT Delhi (NIRF #2)', 'IIT Bombay (NIRF #3)',
+              'IIT Kanpur (NIRF #4)', 'IIT Kharagpur (NIRF #5)', 'IIT Roorkee (NIRF #6)'],
+        TN:  ['IIT Madras (NIRF #1)'],
+        KA:  ['IISc Bengaluru (NIRF #2 Overall)', 'IIT Madras (NIRF #1 Engg)'],
+        MH:  ['IIT Bombay (NIRF #3)'],
+        DL:  ['IIT Delhi (NIRF #2)'],
+      },
+      t2: { // NIRF Engg rank 11-50 -- requires 75%+ and JEE Main / state exam
+        TN:  ['NIT Trichy (NIRF #8)', 'Anna University CEG (NIRF #11)', 'IIT Palakkad', 'PSG Tech Coimbatore'],
+        KA:  ['NIT Surathkal (NIRF #15)', 'RV College Bengaluru (NIRF #36)', 'PES University', 'BMS College'],
+        KL:  ['NIT Calicut (NIRF #14)', 'College of Engg Trivandrum', 'Model Engg College'],
+        AP:  ['NIT Warangal (NIRF #16)', 'JNTU Hyderabad', 'VIT Vellore (NIRF #11 overall private)'],
+        TS:  ['NIT Warangal (NIRF #16)', 'BITS Pilani Hyderabad', 'IIIT Hyderabad'],
+        MH:  ['VJTI Mumbai (NIRF #23)', 'COEP Pune (NIRF #28)', 'NIT Nagpur (NIRF #30)'],
+        DL:  ['DTU Delhi (NIRF #18)', 'NSIT Delhi (NIRF #38)', 'IIIT Delhi'],
+        WB:  ['Jadavpur University (NIRF #13)', 'NIT Durgapur (NIRF #41)'],
+        DEFAULT: ['NIT (nearest state)', 'State top govt engineering college', 'BITS Pilani (if BITSAT eligible)'],
+      },
+      t3: { // 60-74% -- state govt + aided colleges
+        TN:  ['Anna University affiliated govt colleges', 'GCE Coimbatore', 'GCE Salem', 'Govt College of Engg Tirunelveli'],
+        KA:  ['Govt Engineering College Bengaluru', 'BIT Bengaluru', 'State aided engineering colleges'],
+        DEFAULT: ['State government engineering college (nearest)', 'AICTE approved aided college'],
+      },
+      t4: { // below 60%
+        DEFAULT: ['Government aided engineering college (check eligibility)', 'Polytechnic diploma route (then lateral entry to B.E.)'],
+      },
     },
+
     btech_core: {
-      TN:['NIT Trichy','Anna University','Coimbatore Institute of Technology','GCE Salem'],
-      KA:['NIT Surathkal','BMS College','BIT Bengaluru','Govt Engineering College'],
-      DEFAULT:['NIT (state)','State govt engineering college','NAAC A+ aided college'],
+      t1: {
+        ALL: ['IIT Madras (NIRF #1)', 'IIT Kharagpur (NIRF #5)', 'IIT Roorkee (NIRF #6)'],
+      },
+      t2: {
+        TN:  ['NIT Trichy (NIRF #8)', 'Anna University CEG', 'GCE Coimbatore'],
+        KA:  ['NIT Surathkal (NIRF #15)', 'BMS College', 'Govt Engineering College'],
+        DEFAULT: ['NIT (state)', 'State top govt engineering college'],
+      },
+      t3: {
+        TN:  ['Anna University affiliated colleges', 'Government College of Engineering'],
+        DEFAULT: ['State government engineering college', 'AICTE aided college'],
+      },
+      t4: { DEFAULT: ['Government aided college (core engineering)', 'Polytechnic diploma route'] },
     },
+
     medicine: {
-      TN:['Madras Medical College','Stanley Medical College','Coimbatore Medical College','PSG Medical College'],
-      KA:['MS Ramaiah Medical College','St Johns Medical College','Kasturba Medical College Manipal'],
-      KL:['Govt Medical College Thiruvananthapuram','Calicut Medical College','Amala Institute'],
-      DEFAULT:['Government Medical College (state capital)','State university affiliated medical colleges'],
+      t1: { // NIRF Medical rank 1-5 -- requires 95%+ NEET score (650+)
+        ALL: ['AIIMS New Delhi (NIRF #1)', 'PGIMER Chandigarh (NIRF #2)', 'AIIMS Bengaluru',
+              'JIPMER Puducherry (NIRF #5)', 'Amrita School of Medicine (NIRF #4)'],
+        TN:  ['JIPMER Puducherry (NIRF #5)', 'Madras Medical College (state quota)'],
+      },
+      t2: { // NIRF rank 6-30 -- requires 85%+ NEET
+        TN:  ['Madras Medical College', 'Stanley Medical College', 'Kilpauk Medical College', 'Coimbatore Medical College'],
+        KA:  ['MS Ramaiah Medical College (NIRF #18)', 'St Johns Medical College (NIRF #12)', 'Kasturba Medical College Manipal (NIRF #7)'],
+        KL:  ['Govt Medical College Thiruvananthapuram', 'Calicut Medical College', 'Amala Institute'],
+        AP:  ['Gandhi Medical College', 'Andhra Medical College', 'Guntur Medical College'],
+        TS:  ['Osmania Medical College', 'Gandhi Medical College Hyderabad'],
+        DEFAULT: ['State government medical college (state quota)', 'AIIMS (nearest state)'],
+      },
+      t3: { // 60-74% NEET -- private medical or allied health pivot
+        DEFAULT: ['Consider Allied Health (BPT/B.Pharm/BSc Nursing) -- NEET cutoff likely too high for MBBS at this score'],
+      },
+      t4: { DEFAULT: ['Allied Health Sciences strongly recommended over MBBS private at this score level'] },
     },
+
     allied_health: {
-      TN:['KMCH Coimbatore (BPT)','SRM College of Physiotherapy','Vels University (B.Pharm)'],
-      DEFAULT:['Govt physiotherapy college','State university B.Pharm college','Nursing college under state health university'],
+      t1: {
+        ALL: ['AIIMS (BPT/BSc Nursing)', 'CMC Vellore (NIRF #3 Medical)', 'JIPMER (allied programs)'],
+        TN:  ['CMC Vellore', 'SRMC Porur Chennai', 'Amrita Coimbatore (BPT)'],
+      },
+      t2: {
+        TN:  ['KMCH Coimbatore (BPT)', 'SRM College of Physiotherapy', 'Vels University (B.Pharm)', 'KARPAGAM College of Pharmacy'],
+        KA:  ['Manipal College of Allied Health Sciences', 'KLE University Dharwad'],
+        DEFAULT: ['State university BPT college', 'Government College of Pharmacy (nearest)', 'State aided nursing college'],
+      },
+      t3: { DEFAULT: ['Government aided BPT/Pharmacy/Nursing college', 'State health university affiliated college'] },
+      t4: { DEFAULT: ['Government aided nursing/pharmacy college (most accessible route)'] },
     },
+
     ca_finance: {
-      DEFAULT:['ICAI (CA -- enroll directly)','Loyola College Chennai','Christ University Bengaluru','Symbiosis Pune','NMIMS Mumbai'],
+      t1: { // CA -- no college, ICAI direct
+        ALL: ['ICAI (CA Foundation -- enroll directly at icai.org)', 'Delhi School of Economics (B.Com Hons)', 'SRCC Delhi (NIRF #2 College)'],
+      },
+      t2: {
+        TN:  ['Loyola College Chennai (NIRF #13 College)', 'MCC Chennai', 'PSG College of Arts & Science Coimbatore'],
+        KA:  ['Christ University Bengaluru (NIRF #7 College)', 'St Josephs College Bengaluru'],
+        MH:  ['NMIMS Mumbai', 'Symbiosis College Pune', 'HR College Mumbai'],
+        DEFAULT: ['State top arts & science college (B.Com)', 'ICAI enrollment parallel to B.Com'],
+      },
+      t3: { DEFAULT: ['Government arts & science college (B.Com)', 'ICAI enrollment -- CA is the qualification, not the college'] },
+      t4: { DEFAULT: ['Government arts & science college B.Com', 'Enroll in ICAI CA Foundation -- college matters less for CA'] },
     },
+
     bba_mba: {
-      TN:['Loyola College Chennai','MCC Chennai','PSG College Coimbatore','IIM Trichy (MBA later)'],
-      DEFAULT:['Christ University Bengaluru','Symbiosis Pune','NMIMS Mumbai','IIM via CAT after graduation'],
+      t1: { // IIM via IPMAT -- requires 90%+ in 12th
+        ALL: ['IIM Indore (IPMAT -- NIRF Mgmt #3)', 'IIM Rohtak (IPMAT)', 'Christ University Bengaluru'],
+        TN:  ['IIM Trichy (via CAT for MBA later)', 'Loyola College Chennai (BBA)', 'MCC Chennai'],
+      },
+      t2: {
+        TN:  ['PSG College Coimbatore', 'Loyola College Chennai', 'MCC Chennai', 'SASTRA University'],
+        KA:  ['Christ University Bengaluru (NIRF #7)', 'PES University', 'Jain University'],
+        MH:  ['Symbiosis Pune (NIRF Mgmt #7)', 'NMIMS Mumbai', 'Narsee Monjee'],
+        DEFAULT: ['Christ University Bengaluru', 'Symbiosis Pune', 'NMIMS Mumbai'],
+      },
+      t3: { DEFAULT: ['State government arts college (BBA/B.Com)', 'Top up with MBA via CAT later'] },
+      t4: { DEFAULT: ['Government arts & science college BBA or B.Com', 'MBA via CAT/state exam after graduation'] },
     },
+
     law: {
-      TN:['Tamil Nadu National Law University','School of Excellence in Law Chennai','Madras Law College'],
-      KA:['NLSIU Bengaluru','Symbiosis Law Pune','Karnataka State Law University'],
-      DEFAULT:['National Law University (state NLU)','State law college','Symbiosis Law Pune'],
+      t1: { // NLU via CLAT -- requires 90%+
+        ALL: ['NLSIU Bengaluru (NIRF Law #1 -- 7 consecutive years)', 'NLU Delhi (NIRF Law #2)', 'NALSAR Hyderabad (NIRF Law #3)'],
+        TN:  ['NLSIU Bengaluru (NIRF #1)', 'Tamil Nadu National Law University (TNNLU)'],
+        KA:  ['NLSIU Bengaluru (NIRF #1 Law)', 'Karnataka State Law University'],
+      },
+      t2: {
+        TN:  ['TNNLU Trichy', 'School of Excellence in Law Chennai', 'Madras Law College'],
+        KA:  ['KSLU Hubli', 'Symbiosis Law Pune (NIRF Law #5)', 'Christ University Law'],
+        MH:  ['Symbiosis Law Pune (NIRF #5)', 'ILS Law College Pune', 'GLC Mumbai'],
+        DEFAULT: ['State NLU (nearest)', 'Symbiosis Law Pune', 'Christ University Law Bengaluru'],
+      },
+      t3: { DEFAULT: ['State law college (LLB 3-year after graduation)', 'District bar association affiliated college'] },
+      t4: { DEFAULT: ['State law college -- LLB after graduation is a viable route'] },
     },
+
     journalism_design: {
-      TN:['Asian College of Journalism Chennai','Madras Christian College','NID Ahmedabad (design)'],
-      DEFAULT:['Xavier Institute of Communications Mumbai','NID Ahmedabad','Srishti Bengaluru (design)'],
+      t1: {
+        ALL: ['NID Ahmedabad (top design -- entrance exam)', 'NIFT (fashion/design)', 'NID Bengaluru'],
+        TN:  ['Asian College of Journalism Chennai (ACJ)', 'NID Ahmedabad (design)'],
+      },
+      t2: {
+        TN:  ['ACJ Chennai', 'Madras Christian College (Mass Comm)', 'SRM (Mass Comm)', 'Srishti Bengaluru (design)'],
+        KA:  ['Srishti School of Art Design & Technology', 'Christ University (Journalism)', 'NID Bengaluru'],
+        MH:  ['Xavier Institute of Communications Mumbai (XIC)', 'Symbiosis Media Pune', 'SNDT Mumbai'],
+        DEFAULT: ['Xavier Institute Mumbai (XIC)', 'NID (design -- entrance exam)', 'Symbiosis Media Pune'],
+      },
+      t3: { DEFAULT: ['State university BMM / BA Mass Communication', 'Government arts college journalism dept'] },
+      t4: { DEFAULT: ['State university BA Mass Communication', 'Government arts college'] },
     },
+
     civil_services: {
-      TN:['Loyola College Chennai','Presidency College Chennai','Govt Arts College'],
-      DEFAULT:['Delhi University (BA History/Pol Sci)','State govt arts college','Any BA + dedicated UPSC coaching'],
+      t1: { // UPSC -- any good BA works, Delhi University preferred
+        ALL: ['Delhi University colleges (St Stephens, Hindu, Lady Shri Ram)', 'JNU Delhi (NIRF Univ #2)', 'Loyola College Chennai'],
+        TN:  ['Loyola College Chennai', 'Presidency College Chennai', 'Madras Christian College'],
+      },
+      t2: {
+        TN:  ['Loyola College Chennai', 'MCC Chennai', 'Government Arts College (low cost, strong for UPSC)'],
+        KA:  ['Christ University Bengaluru', 'St Josephs College', 'Bangalore University colleges'],
+        DEFAULT: ['State government arts college (BA History/Pol Sci/Economics)', 'Any college + dedicated UPSC coaching'],
+      },
+      t3: { DEFAULT: ['Government arts college BA -- college matters less for UPSC, coaching matters more'] },
+      t4: { DEFAULT: ['Government arts college BA + TNPSC/State PSC as primary target (less competitive than UPSC)'] },
     },
+
     diploma: {
-      TN:['Govt Polytechnic (DOTE Tamil Nadu -- very low fees)','State polytechnic colleges'],
-      KA:['Govt Polytechnic Bengaluru','Karnataka polytechnic colleges'],
-      DEFAULT:['State Govt Polytechnic (nearest)','AICTE approved Diploma college'],
+      t1: { DEFAULT: ['Government Polytechnic (DOTE affiliated -- very low fees, best ROI for diploma route)'] },
+      t2: {
+        TN:  ['Government Polytechnic (DOTE TN)', 'Central Polytechnic Chennai', 'PSG Polytechnic Coimbatore'],
+        KA:  ['Government Polytechnic Bengaluru', 'BMS Polytechnic'],
+        DEFAULT: ['Government Polytechnic (state)', 'Central Polytechnic (nearest city)'],
+      },
+      t3: { DEFAULT: ['Government Polytechnic -- lateral entry to B.E. 2nd year after diploma'] },
+      t4: { DEFAULT: ['Government Polytechnic -- most accessible technical route, low fees'] },
+    },
+
+    science_cs: {
+      t1: { DEFAULT: ['Target Science group -> JEE Advanced -> IIT after 12th'] },
+      t2: { DEFAULT: ['Science group -> JEE Main / TNEA -> NIT / Anna University after 12th'] },
+      t3: { DEFAULT: ['Science group -> State counselling -> Government engineering college after 12th'] },
+      t4: { DEFAULT: ['Consider Diploma (Polytechnic) route -> lateral entry to B.E. after 3 years'] },
+    },
+
+    science_bio: {
+      t1: { DEFAULT: ['Biology group -> NEET -> AIIMS / top govt medical college after 12th'] },
+      t2: { DEFAULT: ['Biology group -> NEET -> State govt medical college after 12th'] },
+      t3: { DEFAULT: ['Biology group -> NEET -> BPT / B.Pharm / BSc Nursing (if MBBS cutoff is challenging)'] },
+      t4: { DEFAULT: ['Allied Health Sciences (BPT/Pharmacy/Nursing) -- more accessible than MBBS at this score'] },
+    },
+
+    commerce_maths: {
+      t1: { DEFAULT: ['Commerce with Maths -> CA Foundation (ICAI) + B.Com Hons Delhi/Loyola'] },
+      t2: { DEFAULT: ['Commerce with Maths -> B.Com + CA / BBA + MBA route'] },
+      t3: { DEFAULT: ['Commerce -> B.Com from state college + CA Foundation'] },
+      t4: { DEFAULT: ['Commerce -> B.Com from government college + CA Foundation'] },
+    },
+
+    arts: {
+      t1: { DEFAULT: ['Arts -> CLAT -> NLU (top law) after 12th', 'Arts -> CUET -> DU / JNU for BA'] },
+      t2: { DEFAULT: ['Arts -> BA from good college -> law / journalism / civil services'] },
+      t3: { DEFAULT: ['Arts -> BA from state college -> TNPSC / state govt jobs / teaching'] },
+      t4: { DEFAULT: ['Arts -> Government arts college BA -> state government job preparation'] },
     },
   };
-  const p = c[pathId];
-  if (!p) return [];
-  return p[s] || p.DEFAULT || [];
+
+  function getTier(mark) {
+    if (!mark || mark >= 95) return 't1';
+    if (mark >= 75) return 't2';
+    if (mark >= 60) return 't3';
+    return 't4';
+  }
+
+  const tier = getTier(avgMark);
+  const pathData = nirf[pathId];
+  if (!pathData) return [];
+
+  const tierData = pathData[tier] || pathData['t3'] || pathData['t4'] || {};
+  const colleges = tierData[s] || tierData['ALL'] || tierData['DEFAULT'] || [];
+
+  // Add mark-appropriate note
+  const notes = {
+    t1: 'These are highly competitive institutions. Verify entrance exam eligibility and cutoffs.',
+    t2: 'Good fit for your marks range. Confirm state counselling cutoffs before applying.',
+    t3: 'Realistic options for your marks. Government colleges offer best value.',
+    t4: 'Focus on government aided colleges for affordability. Private college fees may be high relative to placement outcomes.',
+  };
+
+  return [...colleges, notes[tier]];
 }
 
 // ===========================================
@@ -2956,7 +3334,7 @@ function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeade
       id: 'science_cs', title: 'Science Group (Physics, Chemistry, Maths + CS)',
       subtitle: 'Engineering & Technology track',
       riasecFit: ['I','R','E'],
-      minMark: 75,
+      minMark: 80,
       why: 'Your analytical interest profile and marks in Maths and Science make this a strong fit. The CS sub-subject opens doors to both engineering and software careers without committing immediately.',
       courses: 'JEE / TNEA / KEAM after 12th -> B.Tech, B.E.',
       jobs: ['Software Engineer', 'Data Scientist', 'Product Manager', 'Systems Architect'],
@@ -3017,16 +3395,32 @@ function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeade
   // Score each path + add state-specific colleges
   allPaths.forEach(p => {
     let score = 0;
+
+    // Hard exclusion: marks too far below minimum
+    if (avgMark < p.minMark - 20) {
+      paths.push({ ...p, score: -999 });
+      return;
+    }
+
     if (p.riasecFit.includes(primary)) score += 40;
     if (p.riasecFit.includes(secondary)) score += 20;
-    if (avgMark >= p.minMark) score += 30; else score -= 20;
+
+    // Stronger marks scoring
+    if (avgMark >= p.minMark + 10) score += 40;
+    else if (avgMark >= p.minMark) score += 25;
+    else if (avgMark >= p.minMark - 10) score += 5;
+    else score -= 40;
+
     if (familyExp && p.id.includes(familyExp)) score += 10;
-    p.colleges = getColleges(p.id, userState);
+    p.colleges = getColleges(p.id, userState, avgMark);
     paths.push({ ...p, score });
   });
 
-  // Sort and return top 3
-  return paths.sort((a,b) => b.score - a.score).slice(0, 3);
+  // Filter excluded paths then sort
+  return paths
+    .filter(p => p.score > -999)
+    .sort((a,b) => b.score - a.score)
+    .slice(0, 3);
 }
 
 function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState) {
@@ -3036,16 +3430,29 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
 
   // PCM / PCMB paths
   if (['pcm','pcmb'].includes(stream)) {
+    // Add commerce/management as viable alternative for PCM students with lower marks
+    allPaths.push({
+      id: 'bba_mba', title: 'BBA + MBA -- Business & Management',
+      subtitle: 'Management -- Generalist to Specialist track',
+      riasecFit: ['E','S','C'], minMark: 50,
+      why: 'PCM with BBA is an underrated combination. Strong in tech startups, fintech, and product management roles where both analytical and business thinking matter.',
+      courses: 'BBA from good university then CAT/XAT for IIM/XLRI; or direct B.Tech + MBA',
+      collegeTier: 'Christ Bengaluru, NMIMS, Symbiosis for BBA; IIM via CAT for MBA',
+      jobs: ['Product Manager', 'Business Analyst', 'Startup Founder', 'Consultant', 'Marketing Manager'],
+      salary: 'Rs 3-5 LPA post-BBA; Rs 8-25 LPA post-top-MBA',
+      hiring: 'Consulting, e-commerce, and fintech active hiring. MBA from top school dramatically improves options.',
+      risk: 'BBA from unknown college has limited ceiling. Plan for CAT from Year 1.',
+    });
     allPaths.push({
       id: 'btech_ai', title: 'B.Tech / B.E. with AI / CS specialisation',
       subtitle: 'Engineering -- Technology & Software',
       riasecFit: ['I','R','E'],
-      minMark: 70,
+      minMark: 80,
       why: 'Your Maths and Physics background combined with an analytical profile makes CS/AI engineering the highest-opportunity path in India right now. Specialise in AI, ML, or cloud -- not generic CS.',
       courses: 'JEE Advanced -> IITs; JEE Main -> NITs/IIITs; State counselling -> State colleges; TNEA in Tamil Nadu',
       collegeTier: avgMark >= 90 ? 'IIT/NIT tier realistic' : avgMark >= 75 ? 'State top college / good private' : 'Self-financing college -- choose NAAC A++ only',
       jobs: ['AI Engineer', 'Data Scientist', 'Cloud Architect', 'Product Manager', 'Cybersecurity Analyst'],
-      salary: '₹4-12 LPA starting (IIT median ₹17 LPA in 2025)',
+      salary: '₹3.5-6 LPA at govt/aided college; ₹8-17 LPA at NIT/IIT (marks dependent)',
       hiring: 'AI/ML roles +53% YoY. Cloud/Cybersecurity +30% est. India IT to reach $300B by FY26.',
       risk: 'Avoid tier-3 colleges with poor placement records. The degree alone no longer guarantees a job -- build projects, GitHub portfolio, and specialise.',
     });
@@ -3058,13 +3465,26 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
       courses: 'JEE / State counselling -> B.E. Mechanical, Civil, Electrical, EEE',
       collegeTier: 'Government engineering colleges or NIT/IIIT for best ROI',
       jobs: ['Site Engineer', 'Design Engineer', 'Government Engineer (PSU)', 'Manufacturing Lead'],
-      salary: '₹3-5 LPA starting; PSU (BHEL, ONGC) ₹7-12 LPA',
+      salary: '₹3-5 LPA starting at govt engineering college; PSU (BHEL, ONGC) ₹7-12 LPA after GATE',
       hiring: 'Energy & Utilities +18% YoY. Infrastructure and manufacturing adding roles under PLI.',
       risk: 'Private-sector core engineering salaries are lower than CS for the first 5 years. PSU entrance exams (GATE) require additional preparation.',
     });
   }
 
   if (['pcb','pcmb'].includes(stream)) {
+    // Add nursing/public health as third option for PCB
+    allPaths.push({
+      id: 'bba_mba', title: 'Healthcare Management / Hospital Admin',
+      subtitle: 'Management in Healthcare sector',
+      riasecFit: ['S','E','C'], minMark: 45,
+      why: 'PCB background with a BBA/MBA in healthcare management is a growing field. Hospital chains, pharma companies, and health-tech startups need managers who understand clinical context.',
+      courses: 'BBA in Hospital Management or B.Sc then MBA Healthcare',
+      collegeTier: 'IIHMR Jaipur, Symbiosis Health Sciences, Manipal for healthcare management',
+      jobs: ['Hospital Administrator', 'Healthcare Consultant', 'Pharma Sales Manager', 'Health-tech PM'],
+      salary: 'Rs 3-6 LPA starting; Rs 8-18 LPA after MBA',
+      hiring: 'Healthcare sector growing 11% YoY. Hospitals and pharma chains expanding rapidly.',
+      risk: 'Less known path than MBBS or BPT. Field is growing but awareness is low among parents.',
+    });
     allPaths.push({
       id: 'medicine', title: 'MBBS / BDS / BAMS -- Medicine',
       subtitle: 'Healthcare -- Doctor track',
@@ -3074,7 +3494,7 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
       courses: 'NEET -> MBBS (5.5 years) / BDS (5 years) / BAMS (Ayurveda)',
       collegeTier: avgMark >= 90 ? 'Government medical college realistic' : 'Private medical college -- fees ₹50L-1Cr. Explore management quota carefully.',
       jobs: ['General Physician', 'Specialist Doctor', 'Medical Researcher', 'Public Health Officer'],
-      salary: '₹5-8 LPA (Junior Resident); ₹15-40 LPA after PG specialisation',
+      salary: '₹5-8 LPA (Junior Resident at govt hospital); ₹15-40 LPA after PG specialisation',
       hiring: 'Healthcare sector up 11% YoY hiring. India has 1 doctor per 1,700 people -- still a large gap.',
       risk: 'NEET is extremely competitive. Private college fees are very high. Consider allied health (BPT, B.Pharm, B.Sc Nursing) as strong alternatives with faster returns.',
     });
@@ -3164,8 +3584,35 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
     });
   }
 
+  // Always add 2 universal supplemental paths so every stream gets 3+ options
+  // These only rank highly if stream-specific paths are excluded by marks
+  allPaths.push({
+    id: 'bba_mba_sup', title: 'BBA / B.Com + MBA',
+    subtitle: 'Management -- Open to all streams',
+    riasecFit: ['E','S','C'], minMark: 45,
+    why: 'Business and management is open to all 12th stream students. BBA or B.Com followed by MBA via CAT is a strong career path regardless of what you studied in school.',
+    courses: 'BBA or B.Com from any good college then CAT for IIM or state MBA entrance',
+    collegeTier: 'Christ Bengaluru, Symbiosis Pune, NMIMS Mumbai for BBA; IIM via CAT for MBA',
+    jobs: ['Business Analyst', 'Marketing Manager', 'Entrepreneur', 'Consultant', 'Product Manager'],
+    salary: 'Rs 3-5 LPA post-BBA; Rs 8-25 LPA post-top-MBA',
+    hiring: 'Consulting, e-commerce, BFSI, and startups always hiring management graduates.',
+    risk: 'BBA from unknown college has limited ceiling. Plan for CAT/MBA from Year 1.',
+  });
+  allPaths.push({
+    id: 'skill_voc_sup', title: 'Skill / Vocational / Certificate Course',
+    subtitle: 'Fastest employment route -- any stream',
+    riasecFit: ['R','C','E'], minMark: 35,
+    why: 'Government and private skill development programs (NSDC, PMKVY) offer 6-18 month courses in IT, healthcare, hospitality, and trades. Employment-ready and low cost.',
+    courses: 'NSDC / PMKVY certified courses; Google / Microsoft certifications; ITI government courses',
+    collegeTier: 'Government ITI or NSDC certified training centres',
+    jobs: ['Skilled Technician', 'IT Support', 'Healthcare Worker', 'Hospitality Staff', 'Self-employed'],
+    salary: 'Rs 1.5-3 LPA starting; grows with experience and additional certification',
+    hiring: 'Skilled workforce in high demand across India. PLI scheme driving manufacturing jobs.',
+    risk: 'Lower initial ceiling. Continuous upskilling essential. Not suitable as final qualification -- plan to study further.',
+  });
+
   // Fallback: if stream not matched, add generic paths
-  if (allPaths.length === 0) {
+  if (allPaths.length === 2) {
     allPaths.push(
       { id:'btech_ai', title:'B.Tech / B.E. with CS / AI', subtitle:'Engineering -- Technology', riasecFit:['I','R','E'], minMark:65,
         why:'A versatile engineering degree that suits analytical students. AI and cloud specialisations have the highest job demand in India right now.',
@@ -3191,9 +3638,25 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
   // Score paths + add state-specific data
   const scored = allPaths.map(p => {
     let score = 0;
+
+    // HARD EXCLUSION: if marks are more than 20 points below minMark,
+    // the path is not realistically accessible -- exclude it entirely
+    if (avgMark < p.minMark - 20) {
+      return { ...p, score: -999 }; // will be filtered out
+    }
+
     if (p.riasecFit.includes(primary)) score += 40;
     if (p.riasecFit.includes(secondary)) score += 20;
-    if (avgMark >= p.minMark) score += 30; else score -= 20;
+
+    // Marks scoring -- stronger penalty, stronger reward
+    if (avgMark >= p.minMark + 10) score += 40;      // comfortably above -- very good fit
+    else if (avgMark >= p.minMark) score += 25;       // meets threshold
+    else if (avgMark >= p.minMark - 10) score += 5;   // slightly below -- possible with effort
+    else score -= 40;                                  // significantly below -- deprioritise hard
+
+    // Family expectation bonus
+    if (familyExp && p.id.includes(familyExp)) score += 10;
+
     // Inject state-specific exam names
     if (p.id === 'btech_ai' || p.id === 'btech_core') {
       p.courses = getEnggExams(userState);
@@ -3201,11 +3664,15 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
     if (p.id === 'medicine') {
       p.courses = getMedExams(userState);
     }
-    p.colleges = getColleges(p.id, userState);
+    p.colleges = getColleges(p.id, userState, avgMark);
     return { ...p, score };
   });
 
-  return scored.sort((a,b) => b.score - a.score).slice(0, 3);
+  // Filter out hard-excluded paths, then sort
+  return scored
+    .filter(p => p.score > -999)
+    .sort((a,b) => b.score - a.score)
+    .slice(0, 3);
 }
 
 // ===========================================
@@ -3220,6 +3687,26 @@ const riasecDesc = {
   E:'Leader, persuader, entrepreneurial',
   C:'Organised, structured, detail-driven'
 };
+
+function getSalaryForMark(p, avgMark) {
+  // Return salary string appropriate to the student's marks tier
+  // Avoids showing "IIT median Rs 17 LPA" to a 45% student
+  if (p.id === 'btech_ai') {
+    if (avgMark >= 90) return 'Rs 8-17 LPA at NIT/IIT; Rs 4-7 LPA at good private college';
+    if (avgMark >= 75) return 'Rs 5-10 LPA at NIT/state top college; higher at IIT if eligible';
+    return 'Rs 3.5-6 LPA starting at govt/aided engineering college';
+  }
+  if (p.id === 'btech_core') {
+    if (avgMark >= 75) return 'Rs 4-8 LPA at NIT/govt college; PSU via GATE Rs 7-12 LPA';
+    return 'Rs 3-5 LPA at govt/aided college; PSU via GATE Rs 7-12 LPA';
+  }
+  if (p.id === 'medicine') {
+    if (avgMark >= 85) return 'Rs 5-8 LPA (Junior Resident, govt hospital); Rs 15-40 LPA after PG specialisation';
+    return 'Rs 5-8 LPA (Junior Resident); private practice income varies widely';
+  }
+  // For all other paths, return as-is
+  return p.salary || '';
+}
 
 function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
   const classLabel = state.classLevel === 10 ? 'Class 10 (SSC/SSLC)' : 'Class 12 (HSC/PUC)';
@@ -3248,8 +3735,8 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
       <div class="path-why">💡 ${p.why}</div>
       <div class="path-meta">
         <div class="meta-item"><div class="meta-label">Entry Courses / Exams</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.courses}</div></div>
-        ${p.colleges && p.colleges.length ? `<div class="meta-item"><div class="meta-label">Colleges to Target</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.colleges.join(', ')}</div></div>` : (p.collegeTier ? `<div class="meta-item"><div class="meta-label">College Tier</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.collegeTier}</div></div>` : '')}
-        <div class="meta-item"><div class="meta-label">Typical Salary</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.salary}</div></div>
+        ${p.colleges && p.colleges.length ? `<div class="meta-item"><div class="meta-label">Colleges to Consider <span style="font-size:10px;font-weight:400;color:var(--mid);">(NIRF 2024, indicative)</span></div><div class="meta-value" style="font-size:12px;font-weight:400">${p.colleges.slice(0,3).join(' · ')}</div></div>` : (p.collegeTier ? `<div class="meta-item"><div class="meta-label">College Tier</div><div class="meta-value" style="font-size:12px;font-weight:400">${p.collegeTier}</div></div>` : '')}
+        <div class="meta-item"><div class="meta-label">Typical Salary</div><div class="meta-value" style="font-size:12px;font-weight:400">${getSalaryForMark(p, avgMark)}</div></div>
         <div class="meta-item"><div class="meta-label">Job Market Signal</div><div class="meta-value" style="font-size:12px;font-weight:400;color:var(--sage)">${p.hiring}</div></div>
       </div>
       <div class="jobs-chips">${p.jobs.map(j=>`<span class="job-chip">${j}</span>`).join('')}</div>
