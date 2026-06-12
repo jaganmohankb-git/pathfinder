@@ -1147,6 +1147,45 @@
     line-height: 1.6;
   }
 
+  /* ── EXPLORE BEYOND SCIENCE BOX ── */
+  .explore-box {
+    background: linear-gradient(135deg, rgba(232,168,56,0.08), rgba(232,168,56,0.03));
+    border: 1.5px dashed var(--accent);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 0 0 20px;
+  }
+  .explore-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .explore-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .explore-text {
+    font-size: 13px;
+    color: var(--mid);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .explore-note {
+    font-size: 12px;
+    color: var(--mid);
+    line-height: 1.6;
+    font-style: italic;
+    border-top: 1px solid rgba(232,168,56,0.2);
+    padding-top: 8px;
+  }
+  @media print { .explore-box { break-inside: avoid; } }
+
   /* ── VERIFICATION PORTALS ── */
   .verify-box {
     background: rgba(21,101,192,0.04);
@@ -1872,6 +1911,9 @@
     <div class="paths-container">
       <p class="paths-intro">Here are your 3 best-fit paths — ranked by how well they match your profile. Each includes current job market signals as of 2025–26.</p>
       <div id="paths-output"></div>
+
+      <!-- Explore-beyond-Science box (Class 10 only, conditional) -->
+      <div id="explore-more-box" class="explore-box" style="display:none;"></div>
 
       <!-- Parent summary -->
       <!-- VERIFICATION PORTALS -->
@@ -3009,14 +3051,21 @@ function generateResult() {
   // Generate paths
   let paths = generatePaths(primary, secondary, avgMark, state.classLevel, state.stream12, state.extras, state.familyExp, state.finance, state.userState || '');
 
-  // Safety net: if scoring excluded everything, relax thresholds and retry
-  if (!paths || paths.length === 0) {
-    paths = generatePathsRelaxed(primary, secondary, avgMark, state.classLevel, state.stream12, state.extras, state.familyExp, state.finance, state.userState || '');
+  // Safety net: if scoring excluded too many paths (fewer than 3 remain), relax thresholds and retry
+  if (!paths || paths.length < 3) {
+    const relaxed = generatePathsRelaxed(primary, secondary, avgMark, state.classLevel, state.stream12, state.extras, state.familyExp, state.finance, state.userState || '');
+    // Merge: keep any valid paths from the main scorer, fill remaining slots from relaxed
+    const existingIds = (paths || []).map(p => p.id);
+    const fillers = (relaxed || []).filter(p => !existingIds.includes(p.id));
+    paths = [...(paths || []), ...fillers].slice(0, 3);
   }
 
-  // Final fallback: if still empty, show generic low-mark paths
-  if (!paths || paths.length === 0) {
-    paths = getGenericLowMarkPaths(state.classLevel);
+  // Final fallback: if still fewer than 3, top up with generic low-mark paths
+  if (!paths || paths.length < 3) {
+    const generic = getGenericLowMarkPaths(state.classLevel);
+    const existingIds = (paths || []).map(p => p.id);
+    const fillers = generic.filter(p => !existingIds.includes(p.id));
+    paths = [...(paths || []), ...fillers].slice(0, 3);
   }
 
   generatedPaths = paths; // store for text share
@@ -3194,6 +3243,28 @@ function getColleges(pathId, s, avgMark) {
       t4: { DEFAULT: ['Government arts & science college B.Com', 'Enroll in ICAI CA Foundation -- college matters less for CA'] },
     },
 
+    actuarial_science: {
+      t1: { ALL: ['SRCC Delhi (NIRF #2 College, B.Sc Statistics)', 'St Stephens Delhi (B.Sc Statistics)', 'ISI Kolkata (Statistics, entrance exam)'] },
+      t2: {
+        TN:  ['Loyola College Chennai (B.Sc Statistics)', 'MCC Chennai', 'PSG College Coimbatore (B.Sc Statistics)'],
+        KA:  ['Christ University Bengaluru (B.Sc Statistics/Actuarial)', 'St Josephs College Bengaluru'],
+        DEFAULT: ['State top arts & science college (B.Sc/B.Com Statistics)', 'Institute of Actuaries of India (IAI) exams run parallel -- iaiindia.org'],
+      },
+      t3: { DEFAULT: ['Government arts & science college (B.Com/B.Sc Statistics)', 'Begin IAI Actuarial exams alongside (iaiindia.org)'] },
+      t4: { DEFAULT: ['Government arts & science college B.Com', 'IAI exams can be started alongside any Commerce degree'] },
+    },
+
+    psychology: {
+      t1: { ALL: ['Lady Shri Ram College Delhi (NIRF Top College, Psychology)', 'Christ University Bengaluru (Psychology)', 'Loyola College Chennai (Psychology)'] },
+      t2: {
+        TN:  ['Loyola College Chennai (Psychology)', 'Stella Maris College Chennai', 'Madras Christian College'],
+        KA:  ['Christ University Bengaluru (Psychology)', 'St Josephs College Bengaluru', 'Mount Carmel College'],
+        DEFAULT: ['Christ University Bengaluru', 'State top arts college (BA/BSc Psychology)'],
+      },
+      t3: { DEFAULT: ['Government arts college (BA Psychology)', 'State university affiliated college'] },
+      t4: { DEFAULT: ['Government arts college BA Psychology -- accessible entry point to a growing field'] },
+    },
+
     bba_mba: {
       t1: { // IIM via IPMAT -- requires 90%+ in 12th
         ALL: ['IIM Indore (IPMAT -- NIRF Mgmt #3)', 'IIM Rohtak (IPMAT)', 'Christ University Bengaluru'],
@@ -3336,7 +3407,7 @@ function generatePaths(primary, secondary, avgMark, classLevel, stream12, extras
   }
 }
 
-function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState) {
+function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState, includeAll) {
   const paths = [];
 
   // PATH MATRIX -- 10th
@@ -3378,6 +3449,18 @@ function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeade
       risk: 'CA has a very low pass rate (~5% at Final level). Plan for 5-6 years if that\'s the goal. BBA + MBA is a faster alternative.',
     },
     {
+      id: 'actuarial_science', title: 'Commerce with Maths -> Actuarial Science',
+      subtitle: 'High-demand, low-awareness -- Insurance & Risk',
+      riasecFit: ['C','I','E'],
+      minMark: 60,
+      why: 'India has fewer than 500 qualified actuaries against a growing demand of 5,000+. If you enjoy maths, probability, and structured exams, this is one of India\'s least-known, best-paying career paths.',
+      courses: 'Commerce with Maths -> B.Sc/B.Com (Statistics or Actuarial Science) -> Institute of Actuaries of India (IAI) exams alongside',
+      jobs: ['Actuarial Analyst', 'Risk Analyst', 'Pricing Actuary', 'Insurance Consultant'],
+      salary: '\u20b96-10 LPA starting; \u20b915-30 LPA once partly/fully qualified (5-7 years)',
+      hiring: 'Insurance and BFSI actively hiring actuaries. Demand growing 20%+ YoY as insurance penetration rises in India.',
+      risk: 'IAI exams are tough and self-paced -- requires discipline alongside a degree. Less known path so fewer peers/mentors, but exactly the kind of "underexplored" option worth considering if Maths comes naturally.',
+    },
+    {
       id: 'arts', title: 'Arts / Humanities / Social Sciences',
       subtitle: 'Law, Journalism, Psychology & Social Impact',
       riasecFit: ['S','A','E'],
@@ -3388,6 +3471,18 @@ function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeade
       salary: 'Varies: IAS ₹7th pay scale; Lawyers ₹3-20 LPA based on specialisation',
       hiring: 'Advertising & PR +44%, Media & Entertainment +40% in fresher hiring (2025 data).',
       risk: 'Earnings ramp up is slower in early years. Law requires 5-year LLB. UPSC preparation is highly competitive. However, job satisfaction and societal impact are high.',
+    },
+    {
+      id: 'psychology', title: 'Arts -> BA / BSc Psychology',
+      subtitle: 'Counselling, HR & Mental Health -- Growing field',
+      riasecFit: ['S','A','I'],
+      minMark: 45,
+      why: 'Mental health awareness in India is growing fast, and so is demand for counsellors, school psychologists, and HR/OD professionals. A BA/BSc Psychology degree opens these doors and is open to all 10th students choosing Arts.',
+      courses: 'Arts (with Psychology as main subject) -> BA/BSc Psychology -> MA/MSc Psychology or MSW for clinical practice; RCI registration for clinical practice',
+      jobs: ['Counsellor', 'School Psychologist', 'HR / OD Specialist', 'Clinical Psychologist (with MA + RCI)', 'Special Educator'],
+      salary: '\u20b92.5-5 LPA starting (counselling/HR); \u20b96-12 LPA with MA + experience in clinical or corporate HR roles',
+      hiring: 'Schools increasingly hiring counsellors; corporate wellness programs growing; HR/OD roles steady across industries.',
+      risk: 'Clinical practice requires a Master\'s + RCI registration (additional 2-3 years). Without this, roles are more HR/counselling-support oriented. A genuinely underexplored option if Social/Investigative interests are strong.',
     },
     {
       id: 'diploma', title: 'Diploma (Polytechnic) -- After 10th',
@@ -3428,10 +3523,10 @@ function generatePaths10(primary, secondary, avgMark, hasArt, hasSport, hasLeade
   });
 
   // Filter excluded paths then sort
-  return paths
+  const ranked = paths
     .filter(p => p.score > -999)
-    .sort((a,b) => b.score - a.score)
-    .slice(0, 3);
+    .sort((a,b) => b.score - a.score);
+  return includeAll ? ranked : ranked.slice(0, 3);
 }
 
 function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport, hasLeadership, hasNCC, familyExp, isLowBudget, userState) {
@@ -3443,9 +3538,10 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
   if (['pcm','pcmb'].includes(stream)) {
     // Add commerce/management as viable alternative for PCM students with lower marks
     allPaths.push({
-      id: 'bba_mba', title: 'BBA + MBA -- Business & Management',
+      id: 'bba_mba_pcm', title: 'BBA + MBA -- Business & Management',
       subtitle: 'Management -- Generalist to Specialist track',
       riasecFit: ['E','S','C'], minMark: 50,
+      collegeTier: 'Christ Bengaluru, NMIMS Mumbai, Symbiosis Pune for BBA; IIM via CAT for MBA',
       why: 'PCM with BBA is an underrated combination. Strong in tech startups, fintech, and product management roles where both analytical and business thinking matter.',
       courses: 'BBA from good university then CAT/XAT for IIM/XLRI; or direct B.Tech + MBA',
       collegeTier: 'Christ Bengaluru, NMIMS, Symbiosis for BBA; IIM via CAT for MBA',
@@ -3485,9 +3581,10 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
   if (['pcb','pcmb'].includes(stream)) {
     // Add nursing/public health as third option for PCB
     allPaths.push({
-      id: 'bba_mba', title: 'Healthcare Management / Hospital Admin',
+      id: 'healthcare_mgmt', title: 'Healthcare Management / Hospital Admin',
       subtitle: 'Management in Healthcare sector',
       riasecFit: ['S','E','C'], minMark: 45,
+      collegeTier: 'IIHMR Jaipur, Symbiosis Health Sciences Pune, Manipal for healthcare management',
       why: 'PCB background with a BBA/MBA in healthcare management is a growing field. Hospital chains, pharma companies, and health-tech startups need managers who understand clinical context.',
       courses: 'BBA in Hospital Management or B.Sc then MBA Healthcare',
       collegeTier: 'IIHMR Jaipur, Symbiosis Health Sciences, Manipal for healthcare management',
@@ -3539,10 +3636,11 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
       risk: 'CA has one of India\'s toughest pass rates. Requires consistent discipline for 5+ years. Dropout risk is high without a study plan. BBA + MBA is a valid alternative for business-oriented students.',
     });
     allPaths.push({
-      id: 'bba_mba', title: 'BBA -> MBA -- Business & Management',
+      id: 'bba_mba_commerce', title: 'BBA -> MBA -- Business & Management',
       subtitle: 'Management -- Generalist to Specialist track',
       riasecFit: ['E','S','C'],
       minMark: 50,
+      collegeTier: 'Christ Bengaluru, NMIMS Mumbai, Symbiosis Pune for BBA; IIM via CAT for MBA',
       why: 'BBA is an underrated degree in India. With the right MBA (IIM/XLRI/NMIMS), the career ceiling is very high. This path suits students who like people, business, and variety.',
       courses: 'BBA from good university -> CAT/XAT for IIM/XLRI; or B.Com + MBA',
       collegeTier: 'Top BBA colleges: Christ (Bengaluru), NMIMS, Symbiosis, Loyola (Chennai)',
@@ -3622,22 +3720,18 @@ function generatePaths12(primary, secondary, avgMark, stream12, hasArt, hasSport
     risk: 'Lower initial ceiling. Continuous upskilling essential. Not suitable as final qualification -- plan to study further.',
   });
 
-  // Fallback: if stream not matched, add generic paths
+  // Fallback: if stream not matched (e.g. vocational), add generic paths
+  // with unique ids -- distinct from the main btech_ai/law/bba_mba_sup paths
+  // used in PCM/PCB/Commerce/Arts blocks, to avoid id collisions.
   if (allPaths.length === 2) {
     allPaths.push(
-      { id:'btech_ai', title:'B.Tech / B.E. with CS / AI', subtitle:'Engineering -- Technology', riasecFit:['I','R','E'], minMark:65,
+      { id:'btech_ai_generic', title:'B.Tech / B.E. with CS / AI', subtitle:'Engineering -- Technology', riasecFit:['I','R','E'], minMark:65,
         why:'A versatile engineering degree that suits analytical students. AI and cloud specialisations have the highest job demand in India right now.',
         courses:'JEE Main / State counselling -> B.Tech CS, IT, or AI', collegeTier:'Government or NAAC A++ college recommended',
         jobs:['Software Engineer','Data Analyst','Product Manager','Cloud Engineer'],
         salary:'₹4-10 LPA starting', hiring:'AI/ML roles +53% YoY. IT industry revenues to cross 00B by FY26.',
         risk:'Specialize -- a generic CS degree without skills no longer guarantees placement.' },
-      { id:'bba_mba', title:'BBA + MBA -- Business and Management', subtitle:'Management -- People and Business', riasecFit:['E','S','C'], minMark:50,
-        why:'Suits students who enjoy people, business ideas, and varied work. Strong MBA (IIM/XLRI) dramatically raises the ceiling.',
-        courses:'BBA then CAT/XAT for top MBA; or B.Com + MBA', collegeTier:'Christ, NMIMS, Symbiosis for BBA',
-        jobs:['Marketing Manager','Business Analyst','HR Leader','Consultant','Entrepreneur'],
-        salary:'₹3-5 LPA post-BBA; ₹8-25 LPA post-top-MBA', hiring:'Consulting, BFSI, and e-commerce active hiring.',
-        risk:'BBA without a strong MBA has limited ceiling. Plan for CAT from Year 1.' },
-      { id:'law', title:'BA LLB -- Law', subtitle:'Legal and Policy', riasecFit:['S','E','I'], minMark:50,
+      { id:'law_generic', title:'BA LLB -- Law', subtitle:'Legal and Policy', riasecFit:['S','E','I'], minMark:50,
         why:"India's legal market is growing, especially in corporate law, IP, and tech law. CLAT opens NLU doors.",
         courses:'CLAT then NLU (5-year BA LLB / BBA LLB)', collegeTier:'Top NLU if marks strong; state law college otherwise',
         jobs:['Corporate Lawyer','Legal Consultant','Policy Analyst','Judge','Legal Tech Specialist'],
@@ -3754,6 +3848,38 @@ function renderResult(riasecRanked, paths, avgMark, primary, secondary) {
       <div class="path-risk"><strong>(!) Honest note:</strong> ${p.risk}</div>
     </div>
   `).join('');
+
+  // For Class 10 students -- surface one underexplored alternative
+  // even if it didn't make the top 3, when it scores reasonably for their profile.
+  // This addresses the "herd science group" pattern -- helps students see
+  // options like Actuarial Science or Psychology before locking into a stream.
+  const exploreBox = document.getElementById('explore-more-box');
+  if (exploreBox) {
+    if (state.classLevel === 10) {
+      const shownIds = paths.map(p => p.id);
+      const candidates = ['actuarial_science', 'psychology'].filter(id => !shownIds.includes(id));
+      let suggestion = null;
+      for (const cid of candidates) {
+        const allTenPaths = generatePaths10(primary, secondary, avgMark, false, false, false, false, '', false, state.userState || '', true);
+        const found = allTenPaths.find(p => p.id === cid);
+        if (found && found.score >= 50) { suggestion = found; break; }
+      }
+      if (suggestion) {
+        const label = suggestion.id === 'actuarial_science' ? 'Actuarial Science' : 'Psychology';
+        exploreBox.style.display = 'block';
+        exploreBox.innerHTML = `
+          <div class="explore-label">💡 BEFORE YOU DECIDE -- WORTH EXPLORING</div>
+          <div class="explore-title">${suggestion.title}</div>
+          <div class="explore-text">${suggestion.why}</div>
+          <div class="explore-note">This is one of the less-considered paths in India -- most students don't hear about it before choosing a stream. Your interest profile suggests it could genuinely fit you. Worth a conversation with your family before finalising your stream.</div>
+        `;
+      } else {
+        exploreBox.style.display = 'none';
+      }
+    } else {
+      exploreBox.style.display = 'none';
+    }
+  }
 
   // Parent summary
   const p1 = paths[0];
